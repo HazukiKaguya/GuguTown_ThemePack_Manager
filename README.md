@@ -1,5 +1,5 @@
 English | [Chinese](README_zh.md)  
-# GuguTown ThemePack
+# GuguTown ThemePack Manager
 WebGame GuguTown ThemePack Manager.   
 
 ## Install  
@@ -15,6 +15,8 @@ If you like this plugin, you can click the below Vultr links and use it.
 ![image](https://user-images.githubusercontent.com/35645329/188587101-412da1d5-847f-487d-8432-b47612ec6083.png)![image](https://user-images.githubusercontent.com/35645329/188587287-845ee909-c236-4b7a-9331-15e63a15160d.png)
 
 ## Changelogs
+4.0.1 add equipment,char;   
+4.0.0 refactored setting panel, fix some bugs;   
 3.9.9 All modules have been refactored, the menu CSS and some copywriting have been fine-tuned, props replacement has been added, and the bug that sync-account will not be automatically re-login after the token expiration has been fixed;   
 3.8.0 all modules Refactoring is complete except userTheme module;   
 3.7.2 fix a bug;   
