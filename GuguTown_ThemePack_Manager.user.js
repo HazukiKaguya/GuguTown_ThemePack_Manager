@@ -5,7 +5,7 @@
 // @name:ja     咕咕镇テーマパックマネージャー
 // @namespace   https://github.com/HazukiKaguya/GuguTown_ThemePack
 // @homepage    https://github.com/HazukiKaguya/GuguTown_ThemePack
-// @version     4.0.0
+// @version     4.0.1
 // @description WebGame GuguTown ThemePack Mannager.
 // @description:zh-CN 气人页游 咕咕镇 主题包管理器。
 // @description:zh-TW 氣人頁遊 咕咕鎮 主題包管理器。
@@ -17,11 +17,7 @@
 // @match       https://*.momozhen.com/*
 // @run-at      document-end
 // @require     https://greasyfork.org/scripts/450822-spine-webgl/code/spine-webgl.js?version=1098282
-// @require     https://cdn.jsdelivr.net/npm/crypto-js@4.1.1/crypto-js.js
-// @require     https://cdn.jsdelivr.net/npm/lzma@2.3.2/src/lzma_worker.js
 // @license     MIT License
-// @downloadURL https://github.com/HazukiKaguya/GuguTown_ThemePack/raw/main/GuguTown_ThemePack_Manager.user.js
-// @updateURL   https://github.com/HazukiKaguya/GuguTown_ThemePack/raw/main/GuguTown_ThemePack_Manager.user.js
 // @grant       none
 // ==/UserScript==
 /* eslint-env jquery */
@@ -34,7 +30,7 @@ if (window.location.pathname.indexOf('php') == -1 && window.location.pathname !=
   插件基础资产
   Basic Assets
 */
-let PluginVersion = '4.0.0', timeCheck = new Date().getTime(), LAConf, User;
+let PluginVersion = '4.0.1', timeCheck = new Date().getTime(), LAConf, User;
 const nullimg = 'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==',
     defConf = {
         "ThemePack": "testmain001",
@@ -47,10 +43,11 @@ const nullimg = 'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAA
         "AutoNight": "checked",
         "NightMode": "",
         "MobileLayout": "",
-        "ForceEquippedKanban": "",
+        "ForceEquippedKanban": "checked",
         "Kanban": "checked",
-        "AIKanban": "checked",
+        "AIKanban": "",
         "CharFGCG": "checked",
+        "DetailCG": "checked",
         "Voice": "checked",
         "Ver": "4.0.0",
         "NowCard": "舞",
@@ -90,6 +87,7 @@ const nullimg = 'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAA
                 "CharName": "使用主题角色名",
                 "OriName": "标注原始装备名(使用主题名称时)",
                 "CharFGCG": "角色立绘",
+                "DetailCG": "角色详情页显示CG",
                 "Kanban": "看板娘",
                 "ForceEquippedKanban": "强制上阵角色为看板娘",
                 "AIKanban": "总使用图片看板娘",
@@ -100,7 +98,7 @@ const nullimg = 'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAA
                 "NightMode": "夜间模式",
                 "FollowBrowser": "跟随系统夜间模式",
                 "MobileLayout": "移动视图样式",
-                "UsrInstall": "上传自定义主题包文件",
+                "UsrInstall": "上传自定义主题安装文件",
                 "UsrUninstall": "卸载已安装的自定义主题",
                 "MoreThemes": "下面是自定义主题",
                 "NoCustom": "暂无已安装的自定义主题",
@@ -185,6 +183,7 @@ const nullimg = 'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAA
                     "秃鹫手环": "秃鹫手环",
                     "海星戒指": "海星戒指",
                     "噬魔戒指": "噬魔戒指",
+					"折光戒指": "折光戒指",
 
                     "探险者铁甲": "探险者铁甲",
                     "探险者皮甲": "探险者皮甲",
@@ -197,7 +196,8 @@ const nullimg = 'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAA
                     "探险者耳环": "探险者耳环",
                     "占星师的耳饰": "占星师的耳饰",
                     "萌爪耳钉": "萌爪耳钉",
-                    "猎魔耳环": "猎魔耳环"
+                    "猎魔耳环": "猎魔耳环",
+					"凶神耳环": "凶神耳环"
                 },
                 "old": {
                     "荆棘盾剑": "荆棘剑盾",
@@ -207,7 +207,7 @@ const nullimg = 'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAA
                     "复苏战衣": "复苏木甲",
                     "探险者耳环": "探险者头巾",
                     "占星师的耳饰": "占星师的发饰",
-                    "萌爪耳钉": "天使缎带",
+                    "萌爪耳钉": "天使缎带"
                 }
             },
             "chars": {
@@ -222,7 +222,8 @@ const nullimg = 'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAA
                 "命": "命",
                 "希": "希",
                 "霞": "霞",
-                "雅": "雅"
+                "雅": "雅",
+				"绮": "绮"
             },
             "mobs": {
                 "魔灯之灵（野怪": "魔灯之灵（野怪",
@@ -249,6 +250,7 @@ const nullimg = 'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAA
                 "OriName": "標註原裝備名(使用主題名稱時)",
                 "CharName": "使用主題角色名",
                 "CharFGCG": "角色立繪",
+                "DetailCG": "角色詳情頁顯示CG",
                 "Kanban": "看板娘",
                 "ForceEquippedKanban": "強制上陣角色為看板娘",
                 "AIKanban": "總使用圖片看板娘",
@@ -343,6 +345,7 @@ const nullimg = 'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAA
                     "秃鹫手环": "禿鷲手環",
                     "海星戒指": "海星戒指",
                     "噬魔戒指": "噬魔戒指",
+					"折光戒指": "折光戒指",
 
                     "探险者铁甲": "探險者鐵甲",
                     "探险者皮甲": "探險者皮甲",
@@ -355,7 +358,8 @@ const nullimg = 'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAA
                     "探险者耳环": "探險者耳環",
                     "占星师的耳饰": "占星師的耳飾",
                     "萌爪耳钉": "萌爪耳釘",
-                    "猎魔耳环": "獵魔耳環"
+                    "猎魔耳环": "獵魔耳環",
+					"凶神耳环": "凶神耳環"
                 },
                 "old": {
                     "荆棘盾剑": "荊棘劍盾",
@@ -365,7 +369,7 @@ const nullimg = 'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAA
                     "复苏战衣": "復蘇木甲",
                     "探险者耳环": "探險者頭巾",
                     "占星师的耳饰": "占星師的髮飾",
-                    "萌爪耳钉": "天使緞帶",
+                    "萌爪耳钉": "天使緞帶"
                 }
             },
             "chars": {
@@ -380,7 +384,8 @@ const nullimg = 'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAA
                 "命": "命",
                 "希": "希",
                 "霞": "霞",
-                "雅": "雅"
+                "雅": "雅",
+				"绮": "綺"
             },
             "mobs": {
                 "魔灯之灵（野怪": "魔燈之靈（野怪",
@@ -407,6 +412,7 @@ const nullimg = 'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAA
                 "OriName": "元装備名表示(テーマ名時)",
                 "CharName": "テーマ人名",
                 "CharFGCG": "立ち絵",
+                "DetailCG": "詳細画面でCGを表示",
                 "Kanban": "看板娘",
                 "ForceEquippedKanban": "出撃中キャラを看板娘に固定",
                 "AIKanban": "いつも画像看板娘使用",
@@ -501,6 +507,7 @@ const nullimg = 'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAA
                     "秃鹫手环": "ハゲタカ腕輪",
                     "海星戒指": "海星指輪",
                     "噬魔戒指": "デビル・デバウラー指輪",
+					"折光戒指": "屈折の指輪",
 
                     "探险者铁甲": "探検家の鎧",
                     "探险者皮甲": "探検家の革",
@@ -512,8 +519,9 @@ const nullimg = 'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAA
 
                     "探险者耳环": "探検家の耳飾り",
                     "占星师的耳饰": "占星術師の耳飾り",
-                    "萌爪耳钉": "萌え猫爪の耳飾り",
-                    "猎魔耳环": "猎魔耳飾り"
+                    "萌爪耳钉": "萌え猫爪耳飾り",
+                    "猎魔耳环": "猎魔耳飾り",
+					"凶神耳环": "凶神耳飾り"
                 },
                 "old": {
                     "荆棘盾剑": "いばら剣盾",
@@ -523,7 +531,7 @@ const nullimg = 'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAA
                     "复苏战衣": "蘇るウッドアーマー",
                     "探险者耳环": "探検家のマフラー",
                     "占星师的耳饰": "占星術師の髪飾り",
-                    "萌爪耳钉": "天使のリボン",
+                    "萌爪耳钉": "天使のリボン"
                 }
             },
             "chars": {
@@ -538,7 +546,8 @@ const nullimg = 'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAA
                 "命": "命",
                 "希": "希",
                 "霞": "霞",
-                "雅": "雅"
+                "雅": "雅",
+				"绮": "綺"
             },
             "mobs": {
                 "魔灯之灵（野怪": "魔灯の霊（野怪",
@@ -566,6 +575,7 @@ const nullimg = 'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAA
                 "OriName": "Mark OriNames (ThemeName On)",
                 "CharName": "Theme Character Names",
                 "CharFGCG": "FG/CG Images",
+                "DetailCG": "Show CG on the card detail page",
                 "Kanban": "Kanban Musume",
                 "ForceEquippedKanban": "Force deployed card as Kanban",
                 "AIKanban": "Always use IMG Kanban",
@@ -653,13 +663,14 @@ const nullimg = 'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAA
                     "陨铁重剑": "Meteoric Iron Epee Sword",
                     "饮血魔剑": "Bloodthirsty Demon Sword",
                     "彩金长剑": "Lottery Gold Sword",
-                    "清澄长杖": "清澄长杖",
+                    "清澄长杖": "Limpid Long Staff",
 
                     "探险者手环": "Explorer's Bracelet",
                     "命师的传承手环": "Life's Bracelet from her Shifu",
                     "秃鹫手环": "Vulture Bracelet",
                     "海星戒指": "Starfish Ring",
                     "噬魔戒指": "Devil Devourer Ring",
+					"折光戒指": "Refraction Ring",
 
                     "探险者铁甲": "Explorer's Armor",
                     "探险者皮甲": "Explorer's Leather",
@@ -672,7 +683,8 @@ const nullimg = 'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAA
                     "探险者耳环": "Explorer's Earrings",
                     "占星师的耳饰": "Astrologer's Earrings",
                     "萌爪耳钉": "Neko Claw Earrings",
-                    "猎魔耳环": "Hunt Devil Earrings"
+                    "猎魔耳环": "Hunt Devil Earrings",
+					"凶神耳环": "Evil God Earrings"
                 },
                 "old": {
                     "荆棘盾剑": "Thorny Sword Shield",
@@ -682,23 +694,24 @@ const nullimg = 'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAA
                     "复苏战衣": "Recovery Wood Armour",
                     "探险者耳环": "Explorer's Scarf",
                     "占星师的耳饰": "Astrologer's Hair Ornament",
-                    "萌爪耳钉": "Angel's Ribbon",
+                    "萌爪耳钉": "Angel's Ribbon"
                 }
             },
-            "chars": {
-                "舞": "Dance",
-                "默": "Silent",
-                "琳": "Lin",
-                "艾": "Ai",
-                "梦": "Dream",
-                "薇": "Vivy",
-                "伊": "Yi",
-                "冥": "Nether",
-                "命": "Life",
-                "希": "Hope",
-                "霞": "Rosy",
-                "雅": "Elegant"
-            },
+			"chars": {
+				"舞": "Dance",
+				"默": "Silence",
+				"琳": "Rin",
+				"艾": "Aya",
+				"梦": "Dream",
+				"薇": "Vivi",
+				"伊": "Eve",
+				"冥": "Nyx",
+				"命": "Fate",
+				"希": "Hope",
+				"霞": "Aurora",
+				"雅": "Grace",
+				"绮": "Splendor"
+			},
             "mobs": {
                 "魔灯之灵（野怪": "MagicLamp's Spirit（Mob",
                 "六眼飞鱼（野怪": "SixEyed FlyingFish（Mob",
@@ -726,13 +739,13 @@ const nullimg = 'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAA
         "INF": {
             "UID": "testmain001",
             "Name": {
-                "sc": "测试_公主连结R",
-                "tc": "測試_公主連結R",
-                "ja": "テスト_プリコネR",
-                "en": "test_PrincessConnectReDive",
+                "sc": "测_公主连结R",
+                "tc": "測_公主連結R",
+                "ja": "測_プリコネR",
+                "en": "test_PCReDive",
             },
-            "Ver": [0, 0, 5],
-            "Build": 230826001,
+            "Ver": [0, 1, 0],
+            "Build": 261003001,
             "COMP": {
                 "CharTachie": true,
                 "MobsTachie": true,
@@ -780,7 +793,8 @@ const nullimg = 'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAA
                 "命": "life/",
                 "希": "xii/",
                 "霞": "xia/",
-                "雅": "ya/"
+                "雅": "ya/",
+				"绮": "qi/"
             },
             "HeadFG": {
                 "舞": "1",
@@ -794,7 +808,8 @@ const nullimg = 'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAA
                 "命": "1",
                 "希": "1",
                 "霞": "1",
-                "雅": "1"
+                "雅": "1",
+				"绮": "1"
             },
             "LeftFG": {
                 "舞": "2",
@@ -808,7 +823,8 @@ const nullimg = 'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAA
                 "命": "2",
                 "希": "2",
                 "霞": "2",
-                "雅": "2"
+                "雅": "2",
+				"绮": "2"
             },
             "CG": {
                 "舞": "3",
@@ -822,7 +838,8 @@ const nullimg = 'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAA
                 "命": "3",
                 "希": "3",
                 "霞": "3",
-                "雅": "3"
+                "雅": "3",
+				"绮": "3"
             },
             "LeftPKFG": {
                 "舞": "4",
@@ -836,7 +853,8 @@ const nullimg = 'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAA
                 "命": "4",
                 "希": "4",
                 "霞": "4",
-                "雅": "4"
+                "雅": "4",
+				"绮": "4"
             },
             "RightPKFG": {
                 "舞": "5",
@@ -850,7 +868,8 @@ const nullimg = 'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAA
                 "命": "5",
                 "希": "5",
                 "霞": "5",
-                "雅": "5"
+                "雅": "5",
+				"绮": "5"
             }
         },
         "ImageKanban": {
@@ -858,24 +877,10 @@ const nullimg = 'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAA
             "asset": {
                 "common": "https://p.inari.site/guguicons/test/cg/",
                 "ext": ".png",
-            },
-            "conf": {
-                "舞": {
-                    "uri": "wuu/",
-                },
-                "默": "mo/",
-                "琳": "lin/",
-                "艾": "ai/",
-                "梦": "meng/",
-                "薇": "wei/",
-                "伊": "yi/",
-                "冥": "min/",
-                "命": "life/",
-                "希": "xii/",
-                "霞": "xia/",
-                "雅": "ya/"
+				"resize":"64"
             },
             "uri": {
+				"舞": "wuu/",
                 "默": "mo/",
                 "琳": "lin/",
                 "艾": "ai/",
@@ -886,49 +891,53 @@ const nullimg = 'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAA
                 "命": "life/",
                 "希": "xii/",
                 "霞": "xia/",
-                "雅": "ya/"
+                "雅": "ya/",
+				"绮": "qi/"
             },
             "idle": {
-                "舞": "0",
-                "默": "0",
-                "琳": "0",
-                "艾": "0",
-                "梦": "0",
-                "薇": "0",
-                "伊": "0",
-                "冥": "0",
-                "命": "0",
-                "希": "0",
-                "霞": "0",
-                "雅": "0"
+                "舞": "2",
+                "默": "2",
+                "琳": "2",
+                "艾": "2",
+                "梦": "2",
+                "薇": "2",
+                "伊": "2",
+                "冥": "2",
+                "命": "2",
+                "希": "2",
+                "霞": "2",
+                "雅": "2",
+				"绮": "2"
             },
-            "win": {
-                "舞": "0",
-                "默": "0",
-                "琳": "0",
-                "艾": "0",
-                "梦": "0",
-                "薇": "0",
-                "伊": "0",
-                "冥": "0",
-                "命": "0",
-                "希": "0",
-                "霞": "0",
-                "雅": "0"
+            "win":  {
+                "舞": "2",
+                "默": "2",
+                "琳": "2",
+                "艾": "2",
+                "梦": "2",
+                "薇": "2",
+                "伊": "2",
+                "冥": "2",
+                "命": "2",
+                "希": "2",
+                "霞": "2",
+                "雅": "2",
+				"绮": "2"
             },
-            "lose": {
-                "舞": "0",
-                "默": "0",
-                "琳": "0",
-                "艾": "0",
-                "梦": "0",
-                "薇": "0",
-                "伊": "0",
-                "冥": "0",
-                "命": "0",
-                "希": "0",
-                "霞": "0",
-                "雅": "0"
+            "lose":  {
+                "舞": "2",
+                "默": "2",
+                "琳": "2",
+                "艾": "2",
+                "梦": "2",
+                "薇": "2",
+                "伊": "2",
+                "冥": "2",
+                "命": "2",
+                "希": "2",
+                "霞": "2",
+                "雅": "2",
+				"绮": "2"
             }
         },
         "SpineKanban": {
@@ -1101,7 +1110,15 @@ const nullimg = 'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAA
                     "wi": -370,
                     "hi": -64,
                     "re": 0.8
-                }
+                },
+				"绮": {
+                    "uri": "qi/",
+                    "type": "8",
+                    "hasRarity6": false,
+                    "wi": -380,
+                    "hi": -92,
+                    "re": 0.8
+                },
             }
         },
         "CharSounds": {
@@ -1121,21 +1138,167 @@ const nullimg = 'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAA
                 "命": "life",
                 "希": "xii/",
                 "霞": "xia/",
-                "雅": "ya/"
+                "雅": "ya/",
+				"绮":"qi/"
             },
             "conf": {
-                "舞": {},
-                "默": {},
-                "琳": {},
-                "艾": {},
-                "梦": {},
-                "薇": {},
-                "伊": {},
-                "冥": {},
-                "命": {},
-                "希": {},
-                "霞": {},
-                "雅": {}
+                "舞": {
+					"uri":"wuu/",
+					"click":["0","1","2","3"],
+					"levelup":"levelup",
+					"colle":"colle",
+					"change":"change",
+					"power":"power",
+					"win":"win",
+					"lose":"lose",
+					"reset":"reset",
+					"exp":"exp",
+					"battle":"battle"
+				},
+                "默":  {
+					"click":["0","1","2","3"],
+					"levelup":"levelup",
+					"colle":"colle",
+					"change":"change",
+					"power":"power",
+					"win":"win",
+					"lose":"lose",
+					"reset":"reset",
+					"exp":"exp",
+					"battle":"battle"
+				},
+                "琳":  {
+					"click":["0","1","2","3"],
+					"levelup":"levelup",
+					"colle":"colle",
+					"change":"change",
+					"power":"power",
+					"win":"win",
+					"lose":"lose",
+					"reset":"reset",
+					"exp":"exp",
+					"battle":"battle"
+				},
+                "艾":  {
+					"click":["0","1","2","3"],
+					"levelup":"levelup",
+					"colle":"colle",
+					"change":"change",
+					"power":"power",
+					"win":"win",
+					"lose":"lose",
+					"reset":"reset",
+					"exp":"exp",
+					"battle":"battle"
+				},
+                "梦":  {
+					"click":["0","1","2","3"],
+					"levelup":"levelup",
+					"colle":"colle",
+					"change":"change",
+					"power":"power",
+					"win":"win",
+					"lose":"lose",
+					"reset":"reset",
+					"exp":"exp",
+					"battle":"battle"
+				},
+                "薇":  {
+					"click":["0","1","2","3"],
+					"levelup":"levelup",
+					"colle":"colle",
+					"change":"change",
+					"power":"power",
+					"win":"win",
+					"lose":"lose",
+					"reset":"reset",
+					"exp":"exp",
+					"battle":"battle"
+				},
+                "伊":  {
+					"click":["0","1","2","3"],
+					"levelup":"levelup",
+					"colle":"colle",
+					"change":"change",
+					"power":"power",
+					"win":"win",
+					"lose":"lose",
+					"reset":"reset",
+					"exp":"exp",
+					"battle":"battle"
+				},
+                "冥":  {
+					"click":["0","1","2","3"],
+					"levelup":"levelup",
+					"colle":"colle",
+					"change":"change",
+					"power":"power",
+					"win":"win",
+					"lose":"lose",
+					"reset":"reset",
+					"exp":"exp",
+					"battle":"battle"
+				},
+                "命":  {
+					"click":["0","1","2","3"],
+					"levelup":"levelup",
+					"colle":"colle",
+					"change":"change",
+					"power":"power",
+					"win":"win",
+					"lose":"lose",
+					"reset":"reset",
+					"exp":"exp",
+					"battle":"battle"
+				},
+                "希":  {
+					"click":["0","1","2","3"],
+					"levelup":"levelup",
+					"colle":"colle",
+					"change":"change",
+					"power":"power",
+					"win":"win",
+					"lose":"lose",
+					"reset":"reset",
+					"exp":"exp",
+					"battle":"battle"
+				},
+                "霞":  {
+					"click":["0","1","2","3"],
+					"levelup":"levelup",
+					"colle":"colle",
+					"change":"change",
+					"power":"power",
+					"win":"win",
+					"lose":"lose",
+					"reset":"reset",
+					"exp":"exp",
+					"battle":"battle"
+				},
+                "雅":  {
+					"click":["0","1","2","3"],
+					"levelup":"levelup",
+					"colle":"colle",
+					"change":"change",
+					"power":"power",
+					"win":"win",
+					"lose":"lose",
+					"reset":"reset",
+					"exp":"exp",
+					"battle":"battle"
+				},
+				"绮":  {
+					"click":["0","1","2","3"],
+					"levelup":"levelup",
+					"colle":"colle",
+					"change":"change",
+					"power":"power",
+					"win":"win",
+					"lose":"lose",
+					"reset":"reset",
+					"exp":"exp",
+					"battle":"battle"
+				}
             }
         },
         "EquipIcons": {
@@ -1173,6 +1336,7 @@ const nullimg = 'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAA
                 "秃鹫手环": "秃鹫手环/",
                 "海星戒指": "海星戒指/",
                 "噬魔戒指": "噬魔戒指/",
+				"折光戒指": "折光戒指/",
 
                 "探险者铁甲": "探险者铁甲/",
                 "探险者皮甲": "探险者皮甲/",
@@ -1185,7 +1349,8 @@ const nullimg = 'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAA
                 "探险者耳环": "探险者耳环/",
                 "占星师的耳饰": "占星师的耳饰/",
                 "萌爪耳钉": "萌爪耳钉/",
-                "猎魔耳环": "猎魔耳环/"
+                "猎魔耳环": "猎魔耳环/",
+				"凶神耳环": "凶神耳环/"
             },
             "olduri": {
                 "饮血魔剑": "饮血长枪/",
@@ -1197,7 +1362,7 @@ const nullimg = 'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAA
             }
         },
         "ItemIcons": {
-            "common": "https://p.inari.site/guguicons/test/eq/",
+            "common": "https://p.inari.site/guguicons/test/items/",
             "ext": ".gif",
             "uri": {
                 "体能刺激药水": "powerdrug",
@@ -1357,6 +1522,7 @@ const nullimg = 'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAA
                     "秃鹫手环": "朋克手镯",
                     "海星戒指": "永恒绿戒",
                     "噬魔戒指": "深结晶变异水晶",
+					"折光戒指": "雪華晶的戒指",
 
                     "探险者铁甲": "重金属护甲",
                     "探险者皮甲": "皮革工作服",
@@ -1369,7 +1535,8 @@ const nullimg = 'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAA
                     "探险者耳环": "旅者耳环",
                     "占星师的耳饰": "海神耳饰",
                     "萌爪耳钉": "精灵王护石",
-                    "猎魔耳环": "狱天耳环"
+                    "猎魔耳环": "狱天耳环",
+					"凶神耳环": "妖精晶翅瓦哈"
                 },
                 "old": {
                     "饮血魔剑": "毁灭之伤冥神枪",
@@ -1377,7 +1544,7 @@ const nullimg = 'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAA
                     "秃鹫手环": "深红爪",
                     "探险者耳环": "旅者头巾",
                     "占星师的耳饰": "樱花月夜簪",
-                    "萌爪耳钉": "细冰姬的蝴蝶结",
+                    "萌爪耳钉": "细冰姬的蝴蝶结"
                 }
             },
             "tc": {
@@ -1400,6 +1567,7 @@ const nullimg = 'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAA
                     "秃鹫手环": "龐克棘刺手環",
                     "海星戒指": "常青之綠戒",
                     "噬魔戒指": "深結晶變異水晶",
+					"折光戒指": "雪華晶の指輪",
 
                     "探险者铁甲": "重金屬盔甲",
                     "探险者皮甲": "皮革工作服",
@@ -1412,7 +1580,8 @@ const nullimg = 'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAA
                     "探险者耳环": "旅者耳環",
                     "占星师的耳饰": "海神耳飾",
                     "萌爪耳钉": "精靈王護石",
-                    "猎魔耳环": "獄天耳飾"
+                    "猎魔耳环": "獄天耳飾",
+					"凶神耳环": "妖精晶翅瓦哈"
                 },
                 "old": {
                     "饮血魔剑": "冥神槍毀滅苦痛",
@@ -1420,7 +1589,7 @@ const nullimg = 'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAA
                     "秃鹫手环": "深紅之爪",
                     "探险者耳环": "旅者頭巾",
                     "占星师的耳饰": "櫻花月夜簪",
-                    "萌爪耳钉": "細冰姬的蝴蝶結",
+                    "萌爪耳钉": "細冰姬的蝴蝶結"
                 }
             },
             "ja": {
@@ -1443,6 +1612,7 @@ const nullimg = 'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAA
                     "秃鹫手环": "パンクニードルバングル",
                     "海星戒指": "常盤の緑環",
                     "噬魔戒指": "深結晶ゼノクリスタル",
+					"折光戒指": "雪華晶の指輪",
 
                     "探险者铁甲": "ヘビーメタルアーマー",
                     "探险者皮甲": "革のサロペット",
@@ -1455,7 +1625,8 @@ const nullimg = 'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAA
                     "探险者耳环": "旅立ちの耳環",
                     "占星师的耳饰": "海神の耳飾り",
                     "萌爪耳钉": "精霊王の護石",
-                    "猎魔耳环": "獄天の耳飾り"
+                    "猎魔耳环": "獄天の耳飾り",
+					"凶神耳环": "妖精晶翅ヴァハ"
                 },
                 "old": {
                     "饮血魔剑": "冥神槍ドゥームペイン",
@@ -1463,7 +1634,7 @@ const nullimg = 'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAA
                     "秃鹫手环": "クリムゾンクロー",
                     "探险者耳环": "旅立ちの頭巾",
                     "占星师的耳饰": "桜花の月夜簪",
-                    "萌爪耳钉": "細氷姫の結び紐",
+                    "萌爪耳钉": "細氷姫の結び紐"
                 }
             },
             "en": {
@@ -1486,6 +1657,7 @@ const nullimg = 'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAA
                     "秃鹫手环": "Punk Bangle",
                     "海星戒指": "Evergreen Ring",
                     "噬魔戒指": "Deep Crystalized Xenocrystal",
+					"折光戒指": "Snow Crystal Ring",
 
                     "探险者铁甲": "Heavy Metal Armor",
                     "探险者皮甲": "Leather Overalls",
@@ -1498,7 +1670,8 @@ const nullimg = 'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAA
                     "探险者耳环": "Journey Earrings",
                     "占星师的耳饰": "Ocean God's Earrings",
                     "萌爪耳钉": "Fairy King's Guardian Stone",
-                    "猎魔耳环": "Heaven Hell Earrings"
+                    "猎魔耳环": "Heaven Hell Earrings",
+					"凶神耳环": "Fairy Crystal Wings Vaha"
                 },
                 "old": {
                     "饮血魔剑": "Nether God Spear, Doom Pain",
@@ -1524,7 +1697,8 @@ const nullimg = 'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAA
                 "命": "宫子",
                 "希": "克莉丝提娜",
                 "霞": "香澄",
-                "雅": "凯露"
+				"雅": "凯露",
+				"绮": "智",
             },
             "tc": {
                 "舞": "可可蘿",
@@ -1538,7 +1712,8 @@ const nullimg = 'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAA
                 "命": "宮子",
                 "希": "克莉絲提娜",
                 "霞": "霞",
-                "雅": "凱留"
+                "雅": "凱留",
+				"绮": "智",
             },
             "ja": {
                 "舞": "コッコロ",
@@ -1552,7 +1727,8 @@ const nullimg = 'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAA
                 "命": "ミヤコ",
                 "希": "クリスティーナ",
                 "霞": "カスミ",
-                "雅": "キャル"
+                "雅": "キャル",
+				"绮": "トモ",
             },
             "en": {
                 "舞": "Kokkoro",
@@ -1566,7 +1742,8 @@ const nullimg = 'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAA
                 "命": "Miyako",
                 "希": "Christina",
                 "霞": "Kasumi",
-                "雅": "Kyaru"
+                "雅": "Kyaru",
+				"绮": "Tomo",
             }
         },
         "Style": {
@@ -1670,6 +1847,7 @@ const nullimg = 'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAA
                 "秃鹫手环": "bracelet_",
                 "海星戒指": "bracelet_",
                 "噬魔戒指": "bracelet_",
+				"折光戒指": "bracelet_",
 
                 "探险者铁甲": "armour_",
                 "探险者皮甲": "clothes_",
@@ -1682,7 +1860,8 @@ const nullimg = 'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAA
                 "探险者耳环": "earring_",
                 "占星师的耳饰": "earring_",
                 "萌爪耳钉": "neko_",
-                "猎魔耳环": "earring_"
+                "猎魔耳环": "earring_",
+				"凶神耳环": "earring_"
             },
             "olduri": {
                 "饮血魔剑": "spear_",
@@ -1748,6 +1927,7 @@ const nullimg = 'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAA
                     "秃鹫手环": "秃鹫手环",
                     "海星戒指": "海星戒指",
                     "噬魔戒指": "噬魔戒指",
+					"折光戒指": "折光戒指",
 
                     "探险者铁甲": "探险者铁甲",
                     "探险者皮甲": "探险者皮甲",
@@ -1760,7 +1940,8 @@ const nullimg = 'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAA
                     "探险者耳环": "探险者耳环",
                     "占星师的耳饰": "占星师的耳饰",
                     "萌爪耳钉": "萌爪耳钉",
-                    "猎魔耳环": "猎魔耳环"
+                    "猎魔耳环": "猎魔耳环",
+					"凶神耳环": "凶神耳环"
                 },
                 "old": {
                     "荆棘盾剑": "荆棘剑盾",
@@ -1793,6 +1974,7 @@ const nullimg = 'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAA
                     "秃鹫手环": "禿鷲手環",
                     "海星戒指": "海星戒指",
                     "噬魔戒指": "噬魔戒指",
+					"折光戒指": "折光戒指",
 
                     "探险者铁甲": "探險者鐵甲",
                     "探险者皮甲": "探險者皮甲",
@@ -1805,7 +1987,8 @@ const nullimg = 'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAA
                     "探险者耳环": "探險者耳環",
                     "占星师的耳饰": "占星師的耳飾",
                     "萌爪耳钉": "萌爪耳釘",
-                    "猎魔耳环": "獵魔耳環"
+                    "猎魔耳环": "獵魔耳環",
+					"凶神耳环": "凶神耳環"
                 },
                 "old": {
                     "荆棘盾剑": "荊棘劍盾",
@@ -1838,6 +2021,7 @@ const nullimg = 'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAA
                     "秃鹫手环": "ハゲタカ腕輪",
                     "海星戒指": "海星指輪",
                     "噬魔戒指": "デビル・デバウラー指輪",
+					"折光戒指": "屈折の指輪",
 
                     "探险者铁甲": "探検家の鎧",
                     "探险者皮甲": "探検家の革",
@@ -1849,8 +2033,9 @@ const nullimg = 'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAA
 
                     "探险者耳环": "探検家のイヤリング",
                     "占星师的耳饰": "占星術師のイヤリング",
-                    "萌爪耳钉": "萌え猫爪のイヤリング",
-                    "猎魔耳环": "獄天の耳飾り"
+                    "萌爪耳钉": "萌え猫爪耳飾り",
+                    "猎魔耳环": "獄天耳飾り",
+					"凶神耳环": "凶神耳飾り",
                 },
                 "old": {
                     "荆棘盾剑": "いばら剣盾",
@@ -1883,6 +2068,7 @@ const nullimg = 'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAA
                     "秃鹫手环": "Vulture Bracelet",
                     "海星戒指": "Starfish Ring",
                     "噬魔戒指": "Devil Devourer Ring",
+					"折光戒指": "Refraction Ring",
 
                     "探险者铁甲": "Explorer's Armor",
                     "探险者皮甲": "Explorer's Leather",
@@ -1895,7 +2081,8 @@ const nullimg = 'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAA
                     "探险者耳环": "Explorer's Earrings",
                     "占星师的耳饰": "Astrologer's Earrings",
                     "萌爪耳钉": "Neko Claw Earrings",
-                    "猎魔耳环": "Hunt Devil Earrings"
+                    "猎魔耳环": "Hunt Devil Earrings",
+					"凶神耳环": "Evil God Earrings"
                 },
                 "old": {
                     "荆棘盾剑": "Thorny sword Shield",
@@ -2801,6 +2988,7 @@ function eqtRep(n, v) {
             .replace(new RegExp("秃鹫手环", 'g'), eqn.秃鹫手环 + `(秃鹫手环)`)
             .replace(new RegExp("海星戒指", 'g'), eqn.海星戒指 + `(海星戒指)`)
             .replace(new RegExp("噬魔戒指", 'g'), eqn.噬魔戒指 + `(噬魔戒指)`)
+			.replace(new RegExp("折光戒指", 'g'), eqn.折光戒指 + `(折光戒指)`)
 
             .replace(new RegExp("探险者铁甲", 'g'), eqn.探险者铁甲 + `(探险者铁甲)`)
             .replace(new RegExp("探险者皮甲", 'g'), eqn.探险者皮甲 + `(探险者皮甲)`)
@@ -2813,7 +3001,8 @@ function eqtRep(n, v) {
             .replace(new RegExp("探险者耳环", 'g'), eqn.探险者耳环 + `(探险者耳环)`)
             .replace(new RegExp("占星师的耳饰", 'g'), eqn.占星师的耳饰 + `(占星师的耳饰)`)
             .replace(new RegExp("萌爪耳钉", 'g'), eqn.萌爪耳钉 + `(萌爪耳钉)`)
-            .replace(new RegExp("猎魔耳环", 'g'), eqn.猎魔耳环 + `(猎魔耳环)`);
+            .replace(new RegExp("猎魔耳环", 'g'), eqn.猎魔耳环 + `(猎魔耳环)`)
+			.replace(new RegExp("凶神耳环", 'g'), eqn.凶神耳环 + `(凶神耳环)`);
     }
     else {
         n = v
@@ -2835,6 +3024,7 @@ function eqtRep(n, v) {
             .replace(new RegExp("秃鹫手环", 'g'), eqn.秃鹫手环)
             .replace(new RegExp("海星戒指", 'g'), eqn.海星戒指)
             .replace(new RegExp("噬魔戒指", 'g'), eqn.噬魔戒指)
+			.replace(new RegExp("折光戒指", 'g'), eqn.折光戒指)
 
             .replace(new RegExp("探险者铁甲", 'g'), eqn.探险者铁甲)
             .replace(new RegExp("探险者皮甲", 'g'), eqn.探险者皮甲)
@@ -2847,7 +3037,8 @@ function eqtRep(n, v) {
             .replace(new RegExp("探险者耳环", 'g'), eqn.探险者耳环)
             .replace(new RegExp("占星师的耳饰", 'g'), eqn.占星师的耳饰)
             .replace(new RegExp("萌爪耳钉", 'g'), eqn.萌爪耳钉)
-            .replace(new RegExp("猎魔耳环", 'g'), eqn.猎魔耳环);
+            .replace(new RegExp("猎魔耳环", 'g'), eqn.猎魔耳环)
+			.replace(new RegExp("凶神耳环", 'g'), eqn.凶神耳环);
     }
 
 
@@ -2906,7 +3097,8 @@ function cntRep(n, v) {
         .replace(new RegExp("命", 'g'), cnt.命)
         .replace(new RegExp("希", 'g'), cnt.希)
         .replace(new RegExp("霞", 'g'), cnt.霞)
-        .replace(new RegExp("雅", 'g'), cnt.雅);
+        .replace(new RegExp("雅", 'g'), cnt.雅)
+		.replace(new RegExp("绮", 'g'), cnt.绮);
 
     return n;
 };
@@ -3153,7 +3345,43 @@ function alltRep() {
 
 
 /* 图标替换组件 Icon Replace COMP */
-function IconMixMode(n, v, Type) {
+/* 从元素上取出「品质原文」（稀有/史诗/传奇）。
+   注意：**不能**从 style 字符串里找品质 —— style 只有图标路径（ys/icon/z/z9xx），
+   品质在名称里，而名称挂在另一个属性上：
+     unique              = 原始中文名（如「稀有星铜苹果护身符」），不受语言影响
+     data-original-title = 已翻译的显示名（随语言变化，不适合做比较）
+   优先用 unique，回退到 data-original-title。 */
+function dessertQualityRaw($el) {
+    if (!$el || typeof $el.getAttribute != "function") { return ""; };
+    let raw = $el.getAttribute("unique") || $el.getAttribute("data-original-title") || "";
+    return String(raw);
+};
+/* style.one 模式（每个道具一张图、按品质改背景色）下的「品质 → 颜色档」定位。
+   原实现有两处错误：
+     1) 在 style 字符串里找「稀有/史诗/传奇」——style 里只有路径，永远找不到；
+     2) 三个分支都写成 indexOf(...) == -1（即「不含该品质」才套用该品质颜色），
+        条件与意图完全相反。
+   结果三个分支恒为真、且最后一段覆盖前面，于是所有品质都变成 t5(#EA644A)。
+   现在：拿品质原文 → 用主题三档标签（可能已被 intl 改写）在原文里定位，
+   取**最长命中**那档，避免子串误判。 */
+function dessertQualityTier(raw, tstyle) {
+    if (!raw) { return ""; };
+    let hit = "", hitLen = 0;
+    ["t5", "t4", "t3"].forEach(function (k) {
+        let lab = tstyle[k + "lv"];
+        if (lab == null || lab === "") { return; };
+        lab = String(lab);
+        if (raw.indexOf(lab) > -1 && lab.length > hitLen) { hit = k; hitLen = lab.length; };
+    });
+    if (hit) { return hit; };
+    /* 主题未声明分档标签时，按默认中文标签兜底 */
+    if (raw.indexOf("传奇") > -1) { return "t5"; };
+    if (raw.indexOf("史诗") > -1) { return "t4"; };
+    if (raw.indexOf("稀有") > -1) { return "t3"; };
+    return "";
+};
+
+function IconMixMode(n, v, Type, rawQuality) {
     n = v;
     if (nowTheme.INF.COMP[Type]) {
         let tmix = nowTheme[Type].style.mix
@@ -3177,14 +3405,20 @@ function IconMixMode(n, v, Type) {
             if (v.indexOf('_5') > -1) n = n.replace(/background-image/g, tmix + tstyle.t5 + tbg);
         };
         if (Type == "DessertIcons" && nowTheme.DessertIcons.style.one) {
-            if (v.indexOf('稀有') == -1) n = v.replace(/background-image/g, tmix + tstyle.t3 + tbg);
-            if (v.indexOf('史诗') == -1) n = v.replace(/background-image/g, tmix + tstyle.t4 + tbg);
-            if (v.indexOf('传奇') == -1) n = v.replace(/background-image/g, tmix + tstyle.t5 + tbg);
+            /* 按品质套用对应背景色。品质改从元素属性读取（见 dessertQualityRaw），
+               用最长命中定位档位，命不中就保持原样式不动。 */
+            let tier = dessertQualityTier(rawQuality, tstyle);
+            if (tier && tstyle[tier]) {
+                n = v.replace(/background-image/g, tmix + tstyle[tier] + tbg);
+            };
         };
         if (Type == "DessertIcons" && !nowTheme.DessertIcons.style.one) {
-            if (v.indexOf('稀有') == -1) n = v.replace(/background-image/g, tmix + tstyle.t3 + tbg).replace(/.gif/g, '_1.gif');
-            if (v.indexOf('史诗') == -1) n = v.replace(/background-image/g, tmix + tstyle.t4 + tbg).replace(/.gif/g, '_2.gif');
-            if (v.indexOf('传奇') == -1) n = v.replace(/background-image/g, tmix + tstyle.t5 + tbg).replace(/.gif/g, '_3.gif');
+            /* 非 one 模式：同一道具按品质分文件（_1/_2/_3），同样按品质档取色 */
+            let tier = dessertQualityTier(rawQuality, tstyle);
+            if (tier && tstyle[tier]) {
+                let sfx = (tier == "t3") ? "_1.gif" : (tier == "t4" ? "_2.gif" : "_3.gif");
+                n = v.replace(/background-image/g, tmix + tstyle[tier] + tbg).replace(/.gif/g, sfx);
+            };
         };
     };
     return n;
@@ -3228,6 +3462,7 @@ function eqiRep(n, v) {
         .replace(/ys\/icon\/z\/z2203_/g, eUrl + tEqIcons.秃鹫手环)
         .replace(/ys\/icon\/z\/z2204_/g, eUrl + tEqIcons.海星戒指)
         .replace(/ys\/icon\/z\/z2205_/g, eUrl + tEqIcons.噬魔戒指)
+		.replace(/ys\/icon\/z\/z2206_/g, eUrl + tEqIcons.折光戒指)
 
         .replace(/ys\/icon\/z\/z2301_/g, eUrl + tEqIcons.探险者铁甲)
         .replace(/ys\/icon\/z\/z2302_/g, eUrl + tEqIcons.探险者皮甲)
@@ -3241,6 +3476,7 @@ function eqiRep(n, v) {
         .replace(/ys\/icon\/z\/z2402_/g, eUrl + tEqIcons.占星师的耳饰)
         .replace(/ys\/icon\/z\/z2403_/g, eUrl + tEqIcons.萌爪耳钉)
         .replace(/ys\/icon\/z\/z2404_/g, eUrl + tEqIcons.猎魔耳环)
+		.replace(/ys\/icon\/z\/z2405_/g, eUrl + tEqIcons.凶神耳环)
     return n;
 };
 function dsiRep(n, v) {
@@ -3287,7 +3523,9 @@ function alliRep() {
         return n;
     });
     $("button[style*='ys/icon/z/z9']").attr("style", function (n, v) {
-        n = IconMixMode(n, v, "DessertIcons");
+        /* 品质在 unique（原文）上，不在 style 里 —— 必须从这里取出来传进去，
+           否则 IconMixMode 无从判断品质，所有护符会被套用同一个颜色。 */
+        n = IconMixMode(n, v, "DessertIcons", dessertQualityRaw(this));
         n = dsiRep(n, n);
         return n;
     });
@@ -3603,7 +3841,18 @@ function cgImgAdd() {
             cgKey = panelKey;
         };
         charName = cgKey;
-        if (cgKey && tChar.uri && tChar.uri[cgKey] && tChar.CG && tChar.CG[cgKey]) {
+        /* nameCount == 1 即「角色详情预览」：此时 #backpacks 里只剩当前预览角色。
+           「角色详情页显示CG」关闭时，详情页不显示 CG（换成内置占位图），
+           角色卡片列表页的显示不受影响。 */
+        let isDetail = (nameCount == 1);
+        if (isDetail && MGRConf.DetailCG != "checked") {
+            $("img.main#CGimg").attr('src', nullimg);
+            $("img.sub#CGimg").attr('src', nullimg);
+            $("img.main#CGimg").removeAttr('data-cgcard');
+            $("img.sub#CGimg").removeAttr('data-cgcard');
+            $("img.sub#CGimg").hide();
+        }
+        else if (cgKey && tChar.uri && tChar.uri[cgKey] && tChar.CG && tChar.CG[cgKey]) {
             let src = tChar.common + tChar.uri[cgKey] + tChar.CG[cgKey] + tChar.ext;
             $("img.sub#CGimg").attr('src', src);
             /* 把角色键记在元素上：点击时用「这张 CG 的角色」而不是当时的出战角色 */
@@ -3698,7 +3947,7 @@ function pkImgAdd() {
                 LfPKFG.style.backgroundSize = "contain";
                 LfPKFG.style.backgroundPosition = "left top";
                 LfPKFG.style.backgroundRepeat = "no-repeat";
-                LfPKFG.style.height = "100px";
+                LfPKFG.style.height = "100%";
             };
         };
     };
@@ -3732,6 +3981,7 @@ function pkImgAdd() {
                 rtPKFG.style.backgroundSize = "contain";
                 rtPKFG.style.backgroundPosition = "right top";
                 rtPKFG.style.backgroundRepeat = "no-repeat";
+				rtPKFG.style.height = "100%";
             };
         };
     };
@@ -3985,19 +4235,38 @@ input[type=checkbox]:checked::before {
     border: 20px solid #000;
     border-radius: 60px;
     width:450px;
-    height:900px;
+    height:800px;
     bottom: 10px;
     right: 10px;
+    /* 三段式布局：头部/页脚固定，只有中间内容区滚动，
+       因此面板内容变长时页脚不会被顶出手机外壳。
+       用「绝对定位三段」而不是 flex：父级不裁剪时 flex 子项拿不到有界高度，
+       overflow-y:auto 会静默失效（PC 下滚不动的真正原因）；
+       绝对定位给的是确定高度，必定生效。
+       注意：display 上不能加 important —— jQuery 的 show()/hide() 用行内样式，
+       important 会压过它，导致面板关不掉（一直显示）、原有点图标进子页的交互失效。
+       底色铺满整个外壳（含圆角区），否则壳外会露出下层网页内容。 */
+    background-color: #000;
+    display: block;
 }
+/* 外发光（手机外壳的光晕）。
+   关键：它必须画在「外壳底色之后」。
+   因为 ::before 是子元素，默认永远画在父元素背景之上；
+   一旦父级有了不透明底色，这层半透明发光就会变成盖在填充上的膜，
+   既露出下面的网页内容、又不再是外发光。
+   用 z-index:-1 把它压到父级背景之后（父级已建立层叠上下文），
+   于是既能共存、又不会在壳上留缝。 */
 .settingBox:before {
     content: "";
     position: absolute;
+    z-index: -1;
     width: 430px;
-    height: 877px;
+    height: 787px;
     box-shadow: 0 0 24px #fff;
     border-radius: 45px;
     left: -10px;
     top: -8px;
+    pointer-events: none;
 }
 .settingBoxMain {
    color: #888;
@@ -4005,12 +4274,51 @@ input[type=checkbox]:checked::before {
    padding: 0 5px;
    font-size: 18px;
    line-height:30px;
-   height: 788px;
+   /* 夹在头部(42px)与页脚之间：上下偏移量确定，因此高度确定，
+      overflow-y:auto 必定生效（原来固定 height:788px，内容超长会溢出且页脚被顶走）。 */
+   position: absolute;
+   top: 42px;
+   bottom: 32px;
+   left: 0;
+   right: 0;
+   overflow-y: auto;
+   overflow-x: hidden;
+   -webkit-overflow-scrolling: touch;
+   /* 只接管纵向手势，横向仍可正常操作；滚动不穿透到下层页面 */
+   touch-action: pan-y;
+   overscroll-behavior-y: contain;
+   scrollbar-width: thin;
+   scrollbar-color: #555 #000;
+}
+.settingBoxMain::-webkit-scrollbar {
+   width: 8px;
+}
+.settingBoxMain::-webkit-scrollbar-track {
+   background: #000;
+}
+.settingBoxMain::-webkit-scrollbar-thumb {
+   background: #555;
+   border-radius: 4px;
+}
+/* 可拖拽滚动的容器：抓取手势 + 拖动时禁止选中文字 */
+.settingBoxMain.gtpDraggable {
+   cursor: grab;
+}
+.settingBoxMain.gtpDragging {
+   cursor: grabbing;
+   user-select: none;
+   -webkit-user-select: none;
 }
 .settingBoxHeader {
-   height: 42px;
-   background-color: #222;
-   display: block;
+    /* 绝对定位：位置由父级（固定高度的 .settingBox）确定，
+       从而让中间内容区拿到确定高度可以滚动。 */
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 42px;
+    background-color: #222;
+    display: block;
    font-size: 100%;
    margin: 0px;
    padding: 0px;
@@ -4054,6 +4362,11 @@ input[type=checkbox]:checked::before {
    margin: 0;
    border-bottom-left-radius:36px;
    border-bottom-right-radius:36px;
+   /* 固定在底部，内容区滚动时始终可见 */
+   position: absolute;
+   left: 0;
+   right: 0;
+   bottom: 0;
 }
 .settingBoxFooter>a {
    position: relative;
@@ -4084,13 +4397,25 @@ input[type=checkbox]:checked::before {
 }
 `
     , SettingCssPhone = `
+/* 手机端：外观完全保持原样（铺满视口的仿真手机菜单），
+   仅补上三段式滚动布局，使内容可滚动、头部页脚不被顶走。 */
 .settingBox {
     position:fixed;
     z-index:999;
     width:100%;
     height:100%;
+    /* 底色铺满，避免边缘露出下层网页内容 */
+    background-color: #000;
+    /* 四边都贴住视口，避免不同浏览器下 100% 与 fixed 组合出现偏差 */
     top: 0px;
     left: 0px;
+    right: 0px;
+    bottom: 0px;
+    margin: 0px;
+    /* 同样不能用 !important：否则 show()/hide() 关不掉面板 */
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
  }
  .settingBoxMain {
     color: #888;
@@ -4098,7 +4423,15 @@ input[type=checkbox]:checked::before {
     padding: 20px;
     font-size: 3.6em;
     line-height:2.4em;
-    height: 92%;
+    /* 原来固定 height:92%、不滚动 → 内容溢出；
+       改为占满剩余空间并在内部滚动。 */
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
+    touch-action: pan-y;
+    overscroll-behavior-y: contain;
  }
  .settingBoxHeader {
     height: 5%;
@@ -4115,7 +4448,8 @@ input[type=checkbox]:checked::before {
     float: right;
  }
  .settingBoxFooter {
-    height: 100%;
+    /* 原来 height:100% 会把页脚整个顶出屏幕，改由 flex 自适应 */
+    flex: 0 0 auto;
     background-color: #000;
     color: #bbb;
     font-size: 3em;
@@ -4157,18 +4491,18 @@ input[type=checkbox]:checked::before {
 `
     , PKCssPC = `
 .col-md-6>.alert{
-    height: 142px;
+    height: 100%;
 }
 .col-md-6>.alert>.row>.col-md-7{
-    height: 114px;
+    height: 100%;
 }
 `
     , PKCssPhone = `
 .col-md-6>.alert{
-    height: 142px;
+    height: 100%;
 }
 .col-md-6>.alert>.row>.col-md-7{
-    height: 114px;
+    height: 100%;
 }
 `
     , GTPCssCommon = `
@@ -4299,15 +4633,17 @@ button[onclick*='b_forcbs('] {
     width:${3.6 * Math.floor(MGRConf.KanbanSize)}px;
     height:${3 * Math.floor(MGRConf.KanbanSize)}px;
 }
+/* 图片看板娘按 MGRConf.KanbanSize% + object-fit:contain，配合画布的 flex 居中，
+   立绘既不会撑破 bg，又能随「看板娘大小」一起缩放。 */
 .Kanban.Image#Canvas {
     overflow: hidden;
 	display: flex;
     justify-content: center;   /* 水平居中 */
-    align-items: center;   
+    align-items: center;
 }
 .Kanban.Image#Image {
-    width: 64%;
-    height: 64%;
+    width: ${nowTheme.ImageKanban.asset.resize}%;
+    height: ${nowTheme.ImageKanban.asset.resize}%;
     object-fit: contain;
     object-position: center bottom;
     display: block;
@@ -4315,30 +4651,26 @@ button[onclick*='b_forcbs('] {
 `
     , KanbanCssPhone = `
 .Kanban.Spine#Main {
-    width:725px;
-    height:605px;
+    width:${4.85 * Math.floor(MGRConf.KanbanSize)}px;
+    height:${4.05 * Math.floor(MGRConf.KanbanSize)}px;
+
 }
 .Kanban.Spine#Canvas {
-    width:720px;
-    height:600px;
-}
-.Kanban.Image#Main {
-    width:720px;
-    height:600px;
+    width:${4.8 * Math.floor(MGRConf.KanbanSize)}px;
+    height:${4 * Math.floor(MGRConf.KanbanSize)}px;
 }
 /* 图片看板娘：立绘等比缩放并完整放进画布，不超出 bg 画布范围 */
 .Kanban.Image#Canvas {
     overflow: hidden;
-    display: flex;
+	display: flex;
+    justify-content: center;   /* 水平居中 */
     align-items: center;
-    justify-content: center;
 }
 .Kanban.Image#Image {
-    max-width: 100%;
-    max-height: 100%;
-    width: auto;
-    height: auto;
+    width: ${nowTheme.ImageKanban.asset.resize}%;
+    height: ${nowTheme.ImageKanban.asset.resize}%;
     object-fit: contain;
+    object-position: center bottom;
     display: block;
 }
 `;
@@ -4467,13 +4799,13 @@ if (!nowTheme.INF.COMP.SpineKanban && !nowTheme.INF.COMP.ImageKanban && MGRConf.
    与 ImageKanban 的 idle/win/lose 图属同一套路径结构
    （common + uri[角色] + 文件名 + ext），因此可直接替换。
    默认启用（无开关）；取不到时返回 null，调用方自动回退到 ImageKanban 自己的图。 */
-function imageKanbanLeftFGUrl(card) {
+function imageKanbanUrl(card) {
     if (!card) { return null; };
-    let tC = nowTheme.CharTachie;
-    if (!tC || !tC.uri || !tC.LeftFG) { return null; };
-    let uri = tC.uri[card], fg = tC.LeftFG[card];
+    let tC = nowTheme.ImageKanban;
+    if (!tC || !tC.uri || !tC.idle) { return null; };
+    let uri = tC.uri[card], fg = tC.idle[card];
     if (!uri || fg == null) { return null; };
-    return tC.common + uri + fg + tC.ext;
+    return tC.asset.common + uri + fg + tC.asset.ext;
 };
 function insKanbanHTML() {
     if ($(".Kanban.SpineTool#Shell").length > 0 ||
@@ -4517,10 +4849,10 @@ function insKanbanHTML() {
             KanbanAssest = tempIMG.asset;
             KanbanCharUri = tempIMG.uri[nowCard];
             CharStatus = tempIMG.idle[nowCard];
-            /* 图片看板娘默认使用角色立绘（LeftFG）；
+            /* 图片看板娘默认使用角色立绘；
                取不到才退回 ImageKanban 的 idle 图。
                尺寸交给 CSS（等比缩放并限制在画布内），不再用行内宽度，避免溢出。 */
-            let lfgIdle = imageKanbanLeftFGUrl(nowCard);
+            let lfgIdle = imageKanbanUrl(nowCard);
             let imgSrc = lfgIdle
                 ? lfgIdle
                 : (KanbanAssest.common + KanbanCharUri + CharStatus + KanbanAssest.ext);
@@ -4534,7 +4866,7 @@ function insKanbanHTML() {
                     <img class="Kanban Image" id="Image" src="${imgSrc}">
                 </div>
             </div>`).insertBefore('body');
-            console.log("image mode" + (lfgIdle ? " (LeftFG)" : ""));
+            console.log("image mode" + (lfgIdle ? " (idle)" : ""));
         };
         KanbanSel = $(".Kanban#Main")[0];
         dragfunc(KanbanSel);
@@ -4609,6 +4941,7 @@ function insTPMSettingHTML() {
             <p>${SelLang.menu.OriName}<label style="float: right;margin-bottom: 0px;"><input class="tpmSetting btn-switch large" id="OriName" type="checkbox" ${MGRConf.OriName}></label></p><HR>
             <p>${SelLang.menu.CharName}<label style="float: right;margin-bottom: 0px;"><input class="tpmSetting btn-switch large" id="CharName" type="checkbox" ${MGRConf.CharName}></label></p><HR>
             <p>${SelLang.menu.CharFGCG}<label style="float: right;margin-bottom: 0px;"><input class="tpmSetting btn-switch large" id="CharFGCG" type="checkbox" ${MGRConf.CharFGCG}></label></p><HR>
+            <p>${SelLang.menu.DetailCG}<label style="float: right;margin-bottom: 0px;"><input class="tpmSetting btn-switch large" id="DetailCG" type="checkbox" ${MGRConf.DetailCG}></label></p><HR>
             <p>${SelLang.menu.Kanban}<label style="float: right;margin-bottom: 0px;"><input class="tpmSetting btn-switch large" id="Kanban" type="checkbox" ${MGRConf.Kanban}></label></p><HR>
             <p>${SelLang.menu.ForceEquippedKanban}<label style="float: right;margin-bottom: 0px;"><input class="tpmSetting btn-switch large" id="ForceEquippedKanban" type="checkbox" ${MGRConf.ForceEquippedKanban}></label></p><HR>
             <p>${SelLang.menu.AIKanban}<label style="float: right;margin-bottom: 0px;"><input class="tpmSetting btn-switch large" id="AIKanban" type="checkbox" ${MGRConf.AIKanban}></label></p><HR>
@@ -4665,9 +4998,160 @@ function insLangSettingHTML() {
 
 };
 
+/* 设置面板拖拽滚动 Drag Scroll
+   让设置了固定高度的 .settingBoxMain（手机仿真设置界面）既能用滚轮滚动，
+   也能像手机设置页一样「按住拖动」来滚动。
+   要点：
+     - 用 mousemove 计算偏移；只在真正拖动（超过阈值）时才接管，
+       因此不会影响勾选框 / 下拉框 / 数字输入的点击。
+     - 交互控件本身不作为拖动起点，避免与它们的原生拖动冲突。
+     - 拖动时 preventDefault 阻止选中文字；pointer-events 不拦截子元素，控件仍可点击。 */
+function dragScrollInit() {
+    if (window.__gtpDragScrollBound) { return; };
+    window.__gtpDragScrollBound = true;
+    let DRAG_THRESHOLD = 4;
+    $(document)
+        .on('mousedown', ".settingBoxMain", function (e) {
+            let el = this;
+            let tag = (e.target && e.target.tagName) ? e.target.tagName.toUpperCase() : "";
+            /* 诊断：确认事件是否送达、以及容器是否真的可滚动 */
+            console.log('[dragScroll] down target=' + tag +
+                ' which=' + e.which +
+                ' scrollH=' + el.scrollHeight + ' clientH=' + el.clientHeight +
+                ' scrollable=' + (el.scrollHeight > el.clientHeight));
+            /* 只响应左键；触摸/右键交给原生滚动与菜单 */
+            if (e.which && e.which != 1) { return; };
+            /* 交互控件上不启动拖动 */
+            if (tag == "INPUT" || tag == "SELECT" || tag == "BUTTON" ||
+                tag == "OPTION" || tag == "TEXTAREA" || tag == "A" || tag == "AUDIO") {
+                return;
+            };
+            /* 内容不足一屏时无需拖动 */
+            if (el.scrollHeight <= el.clientHeight) { return; };
+            let startX = e.pageX, startY = e.pageY;
+            let startTop = el.scrollTop, startLeft = el.scrollLeft;
+            let moved = false;
+            let move = function (ev) {
+                let dy = ev.pageY - startY, dx = ev.pageX - startX;
+                if (!moved && Math.abs(dy) < DRAG_THRESHOLD && Math.abs(dx) < DRAG_THRESHOLD) {
+                    return;
+                };
+                moved = true;
+                $(el).addClass('gtpDragging');
+                ev.preventDefault();
+                el.scrollTop = startTop - dy;
+                el.scrollLeft = startLeft - dx;
+            };
+            let up = function () {
+                $(document).off('mousemove', move).off('mouseup', up);
+                $(el).removeClass('gtpDragging');
+                if (moved) {
+                    /* 拖动过就吞掉紧随其后的 click，避免误触控件 */
+                    let swallow = function (ev) {
+                        ev.stopPropagation();
+                        ev.preventDefault();
+                    };
+                    document.addEventListener('click', swallow, true);
+                    setTimeout(function () {
+                        document.removeEventListener('click', swallow, true);
+                    }, 0);
+                };
+            };
+            $(document).on('mousemove', move).on('mouseup', up);
+        })
+        /* 鼠标停在面板上时即可用滚轮滚动（无需先点一下） */
+        .on('mouseenter', ".settingBoxMain", function () {
+            $(this).addClass('gtpDraggable');
+        })
+        .on('mouseleave', ".settingBoxMain", function () {
+            $(this).removeClass('gtpDraggable gtpDragging');
+        });
+};
+
+/* 下拉框长文本滚动 Marquee for <select>
+   .btn-switch.large.select 只有 110px 宽，主题名/自定义名过长会被系统裁掉。
+   原生 <select> 的选中文本不受 CSS overflow / text-overflow 控制
+   （浏览器把文本裁在控件边框内），所以改用「循环旋转选中项文本」的方式：
+   每隔 marqueeSpeed 毫秒把首字符移到末尾，形成横向滚动观感。
+   仅在文本确实放不下时启用；下拉展开或切换时暂停，避免干扰选择。 */
+let marqueeSpeed = 240;
+let marqueePaused = false;
+function marqueeTooLong(text, sel) {
+    let w = sel.clientWidth || 110;
+    let avail = Math.max(20, w - 22);   /* 预留下拉箭头宽度 */
+    try {
+        let cv = marqueeTooLong._cv || (marqueeTooLong._cv = document.createElement('canvas'));
+        let cx = cv.getContext('2d');
+        if (cx) {
+            let cs = window.getComputedStyle(sel);
+            cx.font = (cs.fontSize || '14px') + ' ' + (cs.fontFamily || 'sans-serif');
+            if (cx.measureText(text).width <= avail) { return false; };
+        };
+    }
+    catch (e) { };
+    /* 取不到 canvas 时按字符数粗略判断，保证仍有滚动效果 */
+    return text.length > 8;
+};
+/* 记录原文：一旦旋转过 option.text，展开下拉框时 Chromium 会按「当前文本」
+   计算弹层宽度 —— 文本被转过就量不出完整宽度。所以旋转前先把原文存进
+   data-gtp-mq，复位时再写回，保证展开时按完整文本自适应宽度。 */
+function marqueeStore(opt) {
+    if (!opt.getAttribute || opt.getAttribute('data-gtp-mq') != null) { return; };
+    let t = opt.text != null ? String(opt.text) : '';
+    if (!t) { return; };
+    opt.setAttribute('data-gtp-mq', t);
+};
+function marqueeReset(sel) {
+    if (!sel || !sel.options) { return; };
+    for (let i = 0; i < sel.options.length; i++) {
+        let o = sel.options[i];
+        if (!o.getAttribute) { continue; };
+        let orig = o.getAttribute('data-gtp-mq');
+        if (orig == null) { continue; };
+        if (o.text !== orig) { o.text = orig; }
+        o.removeAttribute('data-gtp-mq');   /* 复位后视为未旋转 */
+    };
+};
+function marqueeTick() {
+    if (marqueePaused) { return; };
+    $(".tpmSetting.btn-switch.large.select").each(function () {
+        let sel = this;
+        if (!sel.options || sel.selectedIndex < 0) { return; };
+        let opt = sel.options[sel.selectedIndex];
+        let t = opt.text != null ? String(opt.text) : '';
+        if (!t) { return; };
+        /* 若当前文本明显长于原文（异常/多次旋转叠加），先复位再判断 */
+        let orig = opt.getAttribute ? opt.getAttribute('data-gtp-mq') : null;
+        if (orig != null && t.length > orig.length) { t = orig; opt.text = orig; };
+        if (!marqueeTooLong(t, sel)) { return; };
+        marqueeStore(opt);
+        let m = t.match(/^(\s*)([\s\S]*?)(\s*)$/);
+        opt.text = m[1] + m[2].slice(1) + m[2].charAt(0) + m[3];
+    });
+};
+function marqueeInit() {
+    if (window.__gtpMarqueeBound) { return; };
+    window.__gtpMarqueeBound = true;
+    if (typeof setInterval != "function") { return; };
+    setInterval(marqueeTick, marqueeSpeed);
+    /* 展开下拉框 / 失焦 / 改选期间：
+       先暂停、并把文本复位成原文 —— 这样原生弹层能按完整文本自适应宽度，
+       选项名不会被滚动位移影响。收起后（blur/change）再恢复滚动。 */
+    $(document)
+        .on('mousedown focus', ".tpmSetting.btn-switch.large.select", function () {
+            marqueePaused = true;
+            marqueeReset(this);
+        })
+        .on('blur change', ".tpmSetting.btn-switch.large.select", function () {
+            marqueePaused = false;
+        });
+};
+
 insSettingHTML();
 insTPMSettingIcon(); insTPMSettingHTML();
 insLangSettingIcon(); insLangSettingHTML();
+dragScrollInit();
+marqueeInit();
 
 /* HomePage */
 
@@ -5247,7 +5731,7 @@ function battleCG(type) {
         if (!tIMG || !tIMG.uri[card]) { return; };
         let $img = $(".Kanban.Image#Main img#Image");
         if ($img.length == 0) { return; };
-        let lfg = imageKanbanLeftFGUrl(card);
+        let lfg = imageKanbanUrl(card);
         if (lfg) {
             /* LeftFG 只有一张立绘：胜负都回到它，无需 win/lose 资源 */
             $img.attr('src', lfg);
@@ -5433,6 +5917,18 @@ $(document)
             }
             else {
                 upLocal(false);
+            };
+        };
+    })
+    .on('change', ".tpmSetting#DetailCG", function (e) {
+        /* 只影响角色详情页的 CG；列表页不变。
+           装备页当场重跑 cgImgAdd 即可看到效果，无需刷新。 */
+        let want = e.target.checked ? "checked" : "";
+        if (MGRConf.DetailCG != want) {
+            MGRConf.DetailCG = want;
+            upLocal(false);
+            if (window.location.href.indexOf("fyg_equip.php") > -1) {
+                cgImgAdd();
             };
         };
     })
