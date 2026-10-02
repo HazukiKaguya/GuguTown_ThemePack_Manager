@@ -15,6 +15,8 @@
 ![image](https://user-images.githubusercontent.com/35645329/188587836-b063a430-8b91-466f-829b-ab14457efd49.png)![image](https://user-images.githubusercontent.com/35645329/188587776-dc0ff056-704b-48f1-b803-8c32ffb478f7.png)
 
 ## 更新记录
+4.0.1 增强装备替换，增加角色替换；   
+4.0.0 重构了设置界面，修复了一些bug；   
 3.9.9 全部模块重构完成，微调了菜单样式与部分文案，增加了道具替换，修复了一个token过期后不自动重新登录的bug；   
 3.8.0 除自定义主题模块均重构完成，大概有不少bug；   
 3.7.2 修复一处问题；   
