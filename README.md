@@ -5,6 +5,9 @@ WebGame GuguTown ThemePack Manager.
 ## Install  
 [GreasyFork](https://greasyfork.org/scripts/450204)  
 
+## ThemePack Dev Docs
+[English Docs](ThemePack_Dev_README.md) 
+
 ## Sponsor    
 If you like this plugin, you can click the below Vultr links and use it.   
 [Refer Vultr.com and earn $10 per paid signup](https://www.vultr.com/?ref=7365869)  
