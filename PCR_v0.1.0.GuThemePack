@@ -1,0 +1,1018 @@
+{
+	"INF": {
+		"UID": "pcrtheme",
+		"Name": {
+			"sc": "公主连结R",
+			"tc": "公主連結R",
+			"ja": "プリコネR",
+			"en": "PCReDive"
+		},
+		"Ver": [0, 1, 0],
+		"Build": 261003001,
+		"COMP": {
+			"CharTachie": true,
+			"MobsTachie": true,
+			"ImageKanban": true,
+			"SpineKanban": true,
+			"CharSounds": true,
+			"EquipIcons": true,
+			"ItemIcons": true,
+			"DessertIcons": true,
+			"EquipThemeName": true,
+			"ItemThemeName": true,
+			"DessertThemeName": true,
+			"CharThemeName": true,
+			"MobsThemeName": true,
+			"Style": true
+		}
+	},
+	"MobsTachie": {
+		"common": "https://p.inari.site/guguicons/test/mob/",
+		"ext": ".png",
+		"uri": {
+			"魔灯之灵（野怪": "deng",
+			"六眼飞鱼（野怪": "fish",
+			"铁皮木人（野怪": "mu",
+			"迅捷魔蛛（野怪": "zhu",
+			"食铁兽（野怪": "shou",
+			"晶刺豪猪（野怪": "nzhu",
+			"六边形战士（野怪": "liu",
+			"营养均衡的史莱姆（野怪": "slime"
+		}
+	},
+	"CharTachie": {
+		"common": "https://p.inari.site/guguicons/test/cg/",
+		"ext": ".png",
+		"uri": {
+			"舞": "wuu/",
+			"默": "mo/",
+			"琳": "lin/",
+			"艾": "ai/",
+			"梦": "meng/",
+			"薇": "wei/",
+			"伊": "yi/",
+			"冥": "ming/",
+			"命": "life/",
+			"希": "xii/",
+			"霞": "xia/",
+			"雅": "ya/",
+			"绮": "qi/"
+		},
+		"HeadFG": {
+			"舞": "1",
+			"默": "1",
+			"琳": "1",
+			"艾": "1",
+			"梦": "1",
+			"薇": "1",
+			"伊": "1",
+			"冥": "1",
+			"命": "1",
+			"希": "1",
+			"霞": "1",
+			"雅": "1",
+			"绮": "1"
+		},
+		"LeftFG": {
+			"舞": "2",
+			"默": "2",
+			"琳": "2",
+			"艾": "2",
+			"梦": "2",
+			"薇": "2",
+			"伊": "2",
+			"冥": "2",
+			"命": "2",
+			"希": "2",
+			"霞": "2",
+			"雅": "2",
+			"绮": "2"
+		},
+		"CG": {
+			"舞": "3",
+			"默": "3",
+			"琳": "3",
+			"艾": "3",
+			"梦": "3",
+			"薇": "3",
+			"伊": "3",
+			"冥": "3",
+			"命": "3",
+			"希": "3",
+			"霞": "3",
+			"雅": "3",
+			"绮": "3"
+		},
+		"LeftPKFG": {
+			"舞": "4",
+			"默": "4",
+			"琳": "4",
+			"艾": "4",
+			"梦": "4",
+			"薇": "4",
+			"伊": "4",
+			"冥": "4",
+			"命": "4",
+			"希": "4",
+			"霞": "4",
+			"雅": "4",
+			"绮": "4"
+		},
+		"RightPKFG": {
+			"舞": "5",
+			"默": "5",
+			"琳": "5",
+			"艾": "5",
+			"梦": "5",
+			"薇": "5",
+			"伊": "5",
+			"冥": "5",
+			"命": "5",
+			"希": "5",
+			"霞": "5",
+			"雅": "5",
+			"绮": "5"
+		}
+	},
+	"ImageKanban": {
+		"bg": "https://sticker.inari.site/api/bg.jpg",
+		"asset": {
+			"common": "https://p.inari.site/guguicons/test/cg/",
+			"ext": ".png",
+			"resize":"64"
+		},
+		"uri": {
+			"舞": "wuu/",
+			"默": "mo/",
+			"琳": "lin/",
+			"艾": "ai/",
+			"梦": "meng/",
+			"薇": "wei/",
+			"伊": "yi/",
+			"冥": "min/",
+			"命": "life/",
+			"希": "xii/",
+			"霞": "xia/",
+			"雅": "ya/",
+			"绮": "qi/"
+		},
+		"idle": {
+			"舞": "2",
+			"默": "2",
+			"琳": "2",
+			"艾": "2",
+			"梦": "2",
+			"薇": "2",
+			"伊": "2",
+			"冥": "2",
+			"命": "2",
+			"希": "2",
+			"霞": "2",
+			"雅": "2",
+			"绮": "2"
+		},
+		"win":  {
+			"舞": "2",
+			"默": "2",
+			"琳": "2",
+			"艾": "2",
+			"梦": "2",
+			"薇": "2",
+			"伊": "2",
+			"冥": "2",
+			"命": "2",
+			"希": "2",
+			"霞": "2",
+			"雅": "2",
+			"绮": "2"
+		},
+		"lose":  {
+			"舞": "2",
+			"默": "2",
+			"琳": "2",
+			"艾": "2",
+			"梦": "2",
+			"薇": "2",
+			"伊": "2",
+			"冥": "2",
+			"命": "2",
+			"希": "2",
+			"霞": "2",
+			"雅": "2",
+			"绮": "2"
+		}
+	},
+	"SpineKanban": {
+		"bg": {
+			"url": "https://sticker.inari.site/api/bg.jpg",
+			"config": {
+				"alpha": true,
+				"backgroundColor": "#000000"
+			}
+		},
+		"assest": {
+			"common": "https://sticker.inari.site/api/common/",
+			"unit": "https://sticker.inari.site/api/unit/",
+			"ext": ".cysp",
+			"type": "_COMMON_BATTLE.cysp",
+			"skeleton": "_CHARA_BASE.cysp",
+			"skill": "BATTLE.cysp",
+			"default": "default",
+			"baseId": "000000",
+			"substr": "1",
+			"sep": "_",
+			"texture": {
+				"pos": "texture.atlas",
+				"img": "texture.png"
+			},
+			"addAnimations": [
+				"DEAR",
+				"NO_WEAPON",
+				"POSING",
+				"RACE",
+				"RUN_JUMP",
+				"SMILE"
+			],
+			"optionList": [
+				["闲置", "idle"],
+				["准备", "standBy"],
+				["走", "walk"],
+				["跑", "run"],
+				["跑（入场）", "run_gamestart"],
+				["落地", "landing"],
+				["攻击", "attack"],
+				["攻击（扫荡）", "attack_skipQuest"],
+				["庆祝-短", "joy_short,hold,joy_short_return"],
+				["庆祝-长", "joy_long,hold,joy_long_return"],
+				["受伤", "damage"],
+				["死亡", "die,stop"],
+				["合作-准备", "multi_standBy"],
+				["合作-闲置", "multi_idle_standBy"],
+				["合作-闲置（无武器）", "multi_idle_noWeapon"]
+			],
+			"idleCheck": [
+				"multi_idle_standBy",
+				"multi_idle_noWeapon",
+				"idle",
+				"walk",
+				"run",
+				"run_gamestart"
+			],
+			"anim": {
+				"click": "000000_dear_smile",
+				"multi_standBy": "multi_standBy",
+				"_idle": "_idle",
+				"stop": "stop",
+				"hold": "hold",
+				"win": "option[value*=joyResult]",
+				"lose": ["damage", "die", "landing"]
+			}
+		},
+		"conf": {
+			"fallback": {
+				"uri": "wuu/",
+				"type": "6",
+				"hasRarity6": true,
+				"wi": -330,
+				"hi": -42,
+				"re": 0.8
+			},
+			"舞": {
+				"uri": "wuu/",
+				"type": "6",
+				"hasRarity6": true,
+				"wi": -330,
+				"hi": -42,
+				"re": 0.8
+			},
+			"默": {
+				"uri": "mo/",
+				"type": "7",
+				"hasRarity6": true,
+				"wi": -350,
+				"hi": -42,
+				"re": 0.8
+			},
+			"琳": {
+				"uri": "lin/",
+				"type": "5",
+				"hasRarity6": true,
+				"wi": -330,
+				"hi": -42,
+				"re": 0.8
+			},
+			"艾": {
+				"uri": "ai/",
+				"type": "8",
+				"hasRarity6": true,
+				"wi": -320,
+				"hi": -64,
+				"re": 0.8
+			},
+			"梦": {
+				"uri": "meng/",
+				"type": "4",
+				"hasRarity6": false,
+				"wi": -320,
+				"hi": -42,
+				"re": 0.8
+			},
+			"薇": {
+				"uri": "wei/",
+				"type": "1",
+				"hasRarity6": true,
+				"wi": -360,
+				"hi": -42,
+				"re": 0.8
+			},
+			"伊": {
+				"uri": "yi/",
+				"type": "8",
+				"hasRarity6": false,
+				"wi": -380,
+				"hi": -92,
+				"re": 0.8
+			},
+			"冥": {
+				"uri": "min/",
+				"type": "3",
+				"hasRarity6": true,
+				"wi": -350,
+				"hi": -48,
+				"re": 0.8
+			},
+			"命": {
+				"uri": "life/",
+				"type": "1",
+				"hasRarity6": false,
+				"wi": -360,
+				"hi": -36,
+				"re": 1.0
+			},
+			"希": {
+				"uri": "xii/",
+				"type": "10",
+				"hasRarity6": false,
+				"wi": -370,
+				"hi": -64,
+				"re": 0.8
+			},
+			"霞": {
+				"uri": "xia/",
+				"type": "7",
+				"hasRarity6": false,
+				"wi": -370,
+				"hi": -64,
+				"re": 0.8
+			},
+			"雅": {
+				"uri": "ya/",
+				"type": "7",
+				"hasRarity6": false,
+				"wi": -370,
+				"hi": -64,
+				"re": 0.8
+			},
+			"绮": {
+				"uri": "qi/",
+				"type": "8",
+				"hasRarity6": false,
+				"wi": -380,
+				"hi": -92,
+				"re": 0.8
+			}
+		}
+	},
+	"CharSounds": {
+		"common": "https://p.inari.site/guguicons/test/vo/",
+		"ext": ".mp3",
+		"uri": {
+			"on": "on",
+			"off": "off",
+			"舞": "wuu/",
+			"默": "mo/",
+			"琳": "lin/",
+			"艾": "ai/",
+			"梦": "meng/",
+			"薇": "wei/",
+			"伊": "yi/",
+			"冥": "min/",
+			"命": "life",
+			"希": "xii/",
+			"霞": "xia/",
+			"雅": "ya/",
+			"绮":"qi/"
+		},
+		"conf": {
+			"舞": {
+				"uri":"wuu/",
+				"click":["0","1","2","3"],
+				"levelup":"levelup",
+				"colle":"colle",
+				"change":"change",
+				"power":"power",
+				"win":"win",
+				"lose":"lose",
+				"reset":"reset",
+				"exp":"exp",
+				"battle":"battle"
+			},
+			"默":  {
+				"click":["0","1","2","3"],
+				"levelup":"levelup",
+				"colle":"colle",
+				"change":"change",
+				"power":"power",
+				"win":"win",
+				"lose":"lose",
+				"reset":"reset",
+				"exp":"exp",
+				"battle":"battle"
+			},
+			"琳":  {
+				"click":["0","1","2","3"],
+				"levelup":"levelup",
+				"colle":"colle",
+				"change":"change",
+				"power":"power",
+				"win":"win",
+				"lose":"lose",
+				"reset":"reset",
+				"exp":"exp",
+				"battle":"battle"
+			},
+			"艾":  {
+				"click":["0","1","2","3"],
+				"levelup":"levelup",
+				"colle":"colle",
+				"change":"change",
+				"power":"power",
+				"win":"win",
+				"lose":"lose",
+				"reset":"reset",
+				"exp":"exp",
+				"battle":"battle"
+			},
+			"梦":  {
+				"click":["0","1","2","3"],
+				"levelup":"levelup",
+				"colle":"colle",
+				"change":"change",
+				"power":"power",
+				"win":"win",
+				"lose":"lose",
+				"reset":"reset",
+				"exp":"exp",
+				"battle":"battle"
+			},
+			"薇":  {
+				"click":["0","1","2","3"],
+				"levelup":"levelup",
+				"colle":"colle",
+				"change":"change",
+				"power":"power",
+				"win":"win",
+				"lose":"lose",
+				"reset":"reset",
+				"exp":"exp",
+				"battle":"battle"
+			},
+			"伊":  {
+				"click":["0","1","2","3"],
+				"levelup":"levelup",
+				"colle":"colle",
+				"change":"change",
+				"power":"power",
+				"win":"win",
+				"lose":"lose",
+				"reset":"reset",
+				"exp":"exp",
+				"battle":"battle"
+			},
+			"冥":  {
+				"click":["0","1","2","3"],
+				"levelup":"levelup",
+				"colle":"colle",
+				"change":"change",
+				"power":"power",
+				"win":"win",
+				"lose":"lose",
+				"reset":"reset",
+				"exp":"exp",
+				"battle":"battle"
+			},
+			"命":  {
+				"click":["0","1","2","3"],
+				"levelup":"levelup",
+				"colle":"colle",
+				"change":"change",
+				"power":"power",
+				"win":"win",
+				"lose":"lose",
+				"reset":"reset",
+				"exp":"exp",
+				"battle":"battle"
+			},
+			"希":  {
+				"click":["0","1","2","3"],
+				"levelup":"levelup",
+				"colle":"colle",
+				"change":"change",
+				"power":"power",
+				"win":"win",
+				"lose":"lose",
+				"reset":"reset",
+				"exp":"exp",
+				"battle":"battle"
+			},
+			"霞":  {
+				"click":["0","1","2","3"],
+				"levelup":"levelup",
+				"colle":"colle",
+				"change":"change",
+				"power":"power",
+				"win":"win",
+				"lose":"lose",
+				"reset":"reset",
+				"exp":"exp",
+				"battle":"battle"
+			},
+			"雅":  {
+				"click":["0","1","2","3"],
+				"levelup":"levelup",
+				"colle":"colle",
+				"change":"change",
+				"power":"power",
+				"win":"win",
+				"lose":"lose",
+				"reset":"reset",
+				"exp":"exp",
+				"battle":"battle"
+			},
+			"绮":  {
+				"click":["0","1","2","3"],
+				"levelup":"levelup",
+				"colle":"colle",
+				"change":"change",
+				"power":"power",
+				"win":"win",
+				"lose":"lose",
+				"reset":"reset",
+				"exp":"exp",
+				"battle":"battle"
+			}
+		}
+	},
+	"EquipIcons": {
+		"common": "https://p.inari.site/guguicons/test/eq/",
+		"ext": ".gif",
+		"style": {
+			"one": false,
+			"mix": "background-blend-mode:normal;background-color:",
+			"t1": "#C0C0C0;",
+			"t2": "#03B7CD;",
+			"t3": "#38B03F;",
+			"t4": "#F1A325;",
+			"t5": "#EA644A;"
+		},
+		"defuri": {
+			"探险者之剑": "探险者之剑/",
+			"探险者短弓": "探险者短弓/",
+			"探险者短杖": "探险者短杖/",
+			"狂信者的荣誉之刃": "狂信者的荣誉之刃/",
+			"反叛者的刺杀弓": "反叛者的刺杀弓/",
+			"幽梦匕首": "幽梦匕首/",
+			"光辉法杖": "光辉法杖/",
+			"荆棘盾剑": "荆棘盾剑/",
+			"陨铁重剑": "陨铁重剑/",
+			"饮血魔剑": "饮血魔剑/",
+			"彩金长剑": "彩金长剑/",
+			"清澄长杖": "清澄长杖/",
+
+			"探险者手环": "探险者手环/",
+			"命师的传承手环": "命师的传承手环/",
+			"秃鹫手环": "秃鹫手环/",
+			"海星戒指": "海星戒指/",
+			"噬魔戒指": "噬魔戒指/",
+			"折光戒指": "折光戒指/",
+
+			"探险者铁甲": "探险者铁甲/",
+			"探险者皮甲": "探险者皮甲/",
+			"探险者布甲": "探险者布甲/",
+			"旅法师的灵光袍": "旅法师的灵光袍/",
+			"战线支撑者的荆棘重甲": "战线支撑者的荆棘重甲/",
+			"复苏战衣": "复苏战衣/",
+			"挑战斗篷": "挑战斗篷/",
+
+			"探险者耳环": "探险者耳环/",
+			"占星师的耳饰": "占星师的耳饰/",
+			"萌爪耳钉": "萌爪耳钉/",
+			"猎魔耳环": "猎魔耳环/",
+			"凶神耳环": "凶神耳环/"
+		},
+		"olduri": {
+			"饮血魔剑": "饮血长枪/",
+			"探险者手环": "探险者手套/",
+			"秃鹫手环": "秃鹫手套/",
+			"探险者耳环": "探险者头巾/",
+			"占星师的耳饰": "占星师的发饰/",
+			"萌爪耳钉": "天使缎带/"
+		}
+	},
+	"ItemIcons": {
+		"common": "https://p.inari.site/guguicons/test/items/",
+		"ext": ".gif",
+		"uri": {
+			"体能刺激药水": "powerdrug",
+			"锻造材料箱": "forgebox",
+			"灵魂药水": "souldrug",
+			"随机装备箱": "eqchest",
+			"宝石原石": "gemchest",
+			"光环天赋石": "halostone",
+			"苹果核": "fruitcore",
+			"蓝锻造石": "loforge",
+			"绿锻造石": "miforge",
+			"金锻造石": "hiforge"
+		}
+	},
+	"DessertIcons": {
+		"common": "https://p.inari.site/guguicons/test/eq/",
+		"ext": ".gif",
+		"style": {
+			"one": true,
+			"mix": "background-blend-mode:normal;background-color:",
+			"t3": "#38B03F;",
+			"t4": "#F1A325;",
+			"t5": "#EA644A;"
+		},
+		"uri": {
+			"星铜苹果护身符": "apple",
+			"蓝银葡萄护身符": "grape",
+			"紫晶樱桃护身符": "melon"
+		}
+	},
+	"ItemThemeName": {
+		"intl": true,
+		"sc": {
+			"体能刺激药水": "体力药剂",
+			"锻造材料箱": "自选锻造材料",
+			"灵魂药水": "经验药水",
+			"随机装备箱": "随机装备箱",
+			"宝石原石": "自选概率宝石箱",
+			"光环天赋石": "光环天赋石",
+			"苹果核": "玛娜",
+			"蓝锻造石": "低级锻造石",
+			"绿锻造石": "中级锻造石",
+			"金锻造石": "高级锻造石"
+		},
+		"tc": {
+			"体能刺激药水": "體力藥劑",
+			"锻造材料箱": "自選鍛造材料",
+			"灵魂药水": "經驗藥水",
+			"随机装备箱": "隨機裝備箱",
+			"宝石原石": "自選概率寶石箱",
+			"光环天赋石": "光環天賦石",
+			"苹果核": "瑪娜",
+			"蓝锻造石": "低級鍛造石",
+			"绿锻造石": "中級鍛造石",
+			"金锻造石": "高級鍛造石"
+		},
+		"ja": {
+			"体能刺激药水": "体力薬剤",
+			"锻造材料箱": "自選鍛造材料",
+			"灵魂药水": "経験薬",
+			"随机装备箱": "ランダム装備箱",
+			"宝石原石": "自選確率宝石箱",
+			"光环天赋石": "光輪の天賦向上",
+			"苹果核": "マナ",
+			"蓝锻造石": "下級鍛造石",
+			"绿锻造石": "中級鍛造石",
+			"金锻造石": "上級鍛造石"
+		},
+		"en": {
+			"体能刺激药水": "Stamina Potion",
+			"锻造材料箱": "Optional Forging Material",
+			"灵魂药水": "Experience potion",
+			"随机装备箱": "Random Equipment Chest",
+			"宝石原石": "Optional Probability Gem Chest",
+			"光环天赋石": "Halo Talent Stone",
+			"苹果核": "Mana",
+			"蓝锻造石": "Primary Forge Stone",
+			"绿锻造石": "Intermediate Forge Stone",
+			"金锻造石": "Superior Forge Stone"
+		}
+	},
+	"DessertThemeName": {
+		"intl": true,
+		"sc": {
+			"lv": {
+				"稀有": "普通的",
+				"史诗": "成熟的",
+				"传奇": "优质的"
+			},
+			"name": {
+				"星铜苹果护身符": "苹果",
+				"蓝银葡萄护身符": "葡萄",
+				"紫晶樱桃护身符": "西瓜"
+			}
+		},
+		"tc": {
+			"lv": {
+				"稀有": "普通的",
+				"史诗": "成熟的",
+				"传奇": "優質的"
+			},
+			"name": {
+				"星铜苹果护身符": "蘋果",
+				"蓝银葡萄护身符": "葡萄",
+				"紫晶樱桃护身符": "西瓜"
+			}
+		},
+		"ja": {
+			"lv": {
+				"稀有": "普通の",
+				"史诗": "熟した",
+				"传奇": "上質な"
+			},
+			"name": {
+				"星铜苹果护身符": "林檎",
+				"蓝银葡萄护身符": "ぶどう",
+				"紫晶樱桃护身符": "スイカ"
+			}
+		},
+		"en": {
+			"lv": {
+				"稀有": "Common   ",
+				"史诗": "Mature   ",
+				"传奇": "Superior "
+			},
+			"name": {
+				"星铜苹果护身符": "Apple",
+				"蓝银葡萄护身符": "Grape",
+				"紫晶樱桃护身符": "Watermelon"
+			}
+		}
+	},
+	"EquipThemeName": {
+		"intl": true,
+		"sc": {
+			"def": {
+				"探险者之剑": "旅人剑",
+				"探险者短弓": "猎人弓",
+				"探险者短杖": "香木法杖",
+				"狂信者的荣誉之刃": "妖刀血鸦",
+				"反叛者的刺杀弓": "深渊之弓",
+				"幽梦匕首": "黑曜石天黑剑",
+				"光辉法杖": "棒棒糖手杖",
+				"荆棘盾剑": "盖亚之斧",
+				"陨铁重剑": "勇气星核剑",
+				"饮血魔剑": "混沌之刃",
+				"彩金长剑": "辉光剑征服者",
+				"清澄长杖": "冰树杖弗洛斯特斯塔弗",
+
+				"探险者手环": "旅者手镯",
+				"命师的传承手环": "睿智手镯",
+				"秃鹫手环": "朋克手镯",
+				"海星戒指": "永恒绿戒",
+				"噬魔戒指": "深结晶变异水晶",
+				"折光戒指": "雪華晶的戒指",
+
+				"探险者铁甲": "重金属护甲",
+				"探险者皮甲": "皮革工作服",
+				"探险者布甲": "旅者长袍",
+				"旅法师的灵光袍": "魔导师的长袍",
+				"战线支撑者的荆棘重甲": "霸王树之棘针铠",
+				"复苏战衣": "翠绿灵衣",
+				"挑战斗篷": "黑玛瑙之祈装衣",
+
+				"探险者耳环": "旅者耳环",
+				"占星师的耳饰": "海神耳饰",
+				"萌爪耳钉": "精灵王护石",
+				"猎魔耳环": "狱天耳环",
+				"凶神耳环": "妖精晶翅瓦哈"
+			},
+			"old": {
+				"饮血魔剑": "毁灭之伤冥神枪",
+				"探险者手环": "旅者拳套",
+				"秃鹫手环": "深红爪",
+				"探险者耳环": "旅者头巾",
+				"占星师的耳饰": "樱花月夜簪",
+				"萌爪耳钉": "细冰姬的蝴蝶结"
+			}
+		},
+		"tc": {
+			"def": {
+				"探险者之剑": "旅人劍",
+				"探险者短弓": "獵人弓",
+				"探险者短杖": "檀香之杖",
+				"狂信者的荣誉之刃": "妖刀血鴉",
+				"反叛者的刺杀弓": "深淵之弓",
+				"幽梦匕首": "天黑劍奧比修斯",
+				"光辉法杖": "棒棒糖手杖",
+				"荆棘盾剑": "蓋亞之斧",
+				"陨铁重剑": "星核劍艾爾茲修奈德",
+				"饮血魔剑": "渾沌之劍",
+				"彩金长剑": "輝光劍雅德瑪斯",
+				"清澄长杖": "冰樹杖冰霜權杖",
+
+				"探险者手环": "旅者手镯",
+				"命师的传承手环": "睿智手镯",
+				"秃鹫手环": "龐克棘刺手環",
+				"海星戒指": "常青之綠戒",
+				"噬魔戒指": "深結晶變異水晶",
+				"折光戒指": "雪華晶の指輪",
+
+				"探险者铁甲": "重金屬盔甲",
+				"探险者皮甲": "皮革工作服",
+				"探险者布甲": "旅行長袍",
+				"旅法师的灵光袍": "魔導師的長袍",
+				"战线支撑者的荆棘重甲": "霸王樹之棘針鎧",
+				"复苏战衣": "翠綠靈衣",
+				"挑战斗篷": "黑瑪瑙祈裝衣",
+
+				"探险者耳环": "旅者耳環",
+				"占星师的耳饰": "海神耳飾",
+				"萌爪耳钉": "精靈王護石",
+				"猎魔耳环": "獄天耳飾",
+				"凶神耳环": "妖精晶翅瓦哈"
+			},
+			"old": {
+				"饮血魔剑": "冥神槍毀滅苦痛",
+				"探险者手环": "旅者拳套",
+				"秃鹫手环": "深紅之爪",
+				"探险者耳环": "旅者頭巾",
+				"占星师的耳饰": "櫻花月夜簪",
+				"萌爪耳钉": "細冰姬的蝴蝶結"
+			}
+		},
+		"ja": {
+			"def": {
+				"探险者之剑": "旅立ちの剣",
+				"探险者短弓": "狩人の弓",
+				"探险者短杖": "香木の杖",
+				"狂信者的荣誉之刃": "妖刀血鴉",
+				"反叛者的刺杀弓": "アビスボウ",
+				"幽梦匕首": "天黒剣オブシウス",
+				"光辉法杖": "ロリポップステッキ",
+				"荆棘盾剑": "ガイアアクス",
+				"陨铁重剑": "星核剣エルツシュナイド",
+				"饮血魔剑": "カオスブレード",
+				"彩金长剑": "輝光剣アダマス",
+				"清澄长杖": "氷樹杖フロストスタッフ",
+
+				"探险者手环": "旅立ちのミサンガ",
+				"命师的传承手环": "ソフォスブレスレット",
+				"秃鹫手环": "パンクニードルバングル",
+				"海星戒指": "常盤の緑環",
+				"噬魔戒指": "深結晶ゼノクリスタル",
+				"折光戒指": "雪華晶の指輪",
+
+				"探险者铁甲": "ヘビーメタルアーマー",
+				"探险者皮甲": "革のサロペット",
+				"探险者布甲": "旅立ちのローブ",
+				"旅法师的灵光袍": "魔導師のローブ",
+				"战线支撑者的荆棘重甲": "覇王樹の棘針鎧",
+				"复苏战衣": "翠緑の霊衣",
+				"挑战斗篷": "黒瑪瑙の祈装衣",
+
+				"探险者耳环": "旅立ちの耳環",
+				"占星师的耳饰": "海神の耳飾り",
+				"萌爪耳钉": "精霊王の護石",
+				"猎魔耳环": "獄天の耳飾り",
+				"凶神耳环": "妖精晶翅ヴァハ"
+			},
+			"old": {
+				"饮血魔剑": "冥神槍ドゥームペイン",
+				"探险者手环": "旅立ちのパンチ",
+				"秃鹫手环": "クリムゾンクロー",
+				"探险者耳环": "旅立ちの頭巾",
+				"占星师的耳饰": "桜花の月夜簪",
+				"萌爪耳钉": "細氷姫の結び紐"
+			}
+		},
+		"en": {
+			"def": {
+				"探险者之剑": "Iron Blade",
+				"探险者短弓": "Hunter's Bow",
+				"探险者短杖": "Fragrant Wood Wand",
+				"狂信者的荣誉之刃": "Blood Raven Demon Blade",
+				"反叛者的刺杀弓": "Abyss Bow",
+				"幽梦匕首": "Heavenly Black Obsidian Sword",
+				"光辉法杖": "Lolipop Stick",
+				"荆棘盾剑": "Gaia Axe",
+				"陨铁重剑": "Star Core Sword - Erst Schneide",
+				"饮血魔剑": "Chaos Blade",
+				"彩金长剑": "Brilliant Sword - Adamas",
+				"清澄长杖": "IceTree Frost Staff",
+
+				"探险者手环": "Journey Bracelet",
+				"命师的传承手环": "Sophos Bracelet",
+				"秃鹫手环": "Punk Bangle",
+				"海星戒指": "Evergreen Ring",
+				"噬魔戒指": "Deep Crystalized Xenocrystal",
+				"折光戒指": "Snow Crystal Ring",
+
+				"探险者铁甲": "Heavy Metal Armor",
+				"探险者皮甲": "Leather Overalls",
+				"探险者布甲": "Journey Robe",
+				"旅法师的灵光袍": "Magician's Robe",
+				"战线支撑者的荆棘重甲": "Thorn of the Great Tree Armor",
+				"复苏战衣": "Viridian Spiritual Dress",
+				"挑战斗篷": "Black Agate Prayer Dress",
+
+				"探险者耳环": "Journey Earrings",
+				"占星师的耳饰": "Ocean God's Earrings",
+				"萌爪耳钉": "Fairy King's Guardian Stone",
+				"猎魔耳环": "Heaven Hell Earrings",
+				"凶神耳环": "Fairy Crystal Wings Vaha"
+			},
+			"old": {
+				"饮血魔剑": "Nether God Spear, Doom Pain",
+				"探险者手环": "Journey Punches",
+				"秃鹫手环": "Crimson Claw",
+				"探险者耳环": "Journey Hood",
+				"占星师的耳饰": "Moonlight Blossom Hairpin",
+				"萌爪耳钉": "Ice Princess Ribbon"
+			}
+		}
+	},
+	"CharName": {
+		"intl": true,
+		"sc": {
+			"舞": "可可萝",
+			"默": "镜华",
+			"琳": "佩可莉姆",
+			"艾": "璃乃",
+			"梦": "忍",
+			"薇": "碧",
+			"伊": "伊莉亚",
+			"冥": "布丁",
+			"命": "宫子",
+			"希": "克莉丝提娜",
+			"霞": "香澄",
+			"雅": "凯露",
+			"绮": "智"
+		},
+		"tc": {
+			"舞": "可可蘿",
+			"默": "鏡華",
+			"琳": "貪吃佩可",
+			"艾": "璃乃",
+			"梦": "忍",
+			"薇": "碧",
+			"伊": "伊莉亞",
+			"冥": "布丁",
+			"命": "宮子",
+			"希": "克莉絲提娜",
+			"霞": "霞",
+			"雅": "凱留",
+			"绮": "智"
+		},
+		"ja": {
+			"舞": "コッコロ",
+			"默": "キョウカ",
+			"琳": "ペコリーヌ",
+			"艾": "リノ",
+			"梦": "シノブ",
+			"薇": "アオイ",
+			"伊": "イリヤ",
+			"冥": "プリン",
+			"命": "ミヤコ",
+			"希": "クリスティーナ",
+			"霞": "カスミ",
+			"雅": "キャル",
+			"绮": "トモ"
+		},
+		"en": {
+			"舞": "Kokkoro",
+			"默": "Kyouka",
+			"琳": "Pecorine",
+			"艾": "Rino",
+			"梦": "Shinobu",
+			"薇": "Aoi",
+			"伊": "Ilya",
+			"冥": "Pudding",
+			"命": "Miyako",
+			"希": "Christina",
+			"霞": "Kasumi",
+			"雅": "Kyaru",
+			"绮": "Tomo"
+		}
+	},
+	"Style": {
+		"old": "0",
+		"dfbacksize": "background-size:100% 100%;",
+		"eqbacksize": "background-size:100% 100%;",
+		"day": {
+			"bgcr": "",
+			"textcr": ""
+		},
+		"night": {
+			"bgcr": "#141414",
+			"textcr": "#b8b8b8",
+			"panelcr": "#1d1d1d",
+			"bordercr": "#333333",
+			"linkcr": "#4a9eff"
+		}
+	}
+}
