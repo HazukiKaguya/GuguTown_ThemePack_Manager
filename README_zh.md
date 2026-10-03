@@ -5,6 +5,9 @@
 ## 安装  
 [GreasyFork](https://greasyfork.org/scripts/450204)  
 
+## 主题包开发文档
+[中文文档](ThemePack_Dev_README_zh.md)
+
 ## 赞助    
 如果你喜欢本插件，你可以点击以下Vultr链接并注册使用来支持我。    
 [Refer Vultr.com and earn $10 per paid signup](https://www.vultr.com/?ref=7365869)  
