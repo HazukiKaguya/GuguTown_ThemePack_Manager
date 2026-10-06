@@ -19,7 +19,7 @@ If you like this plugin, you can click the below Vultr links and use it.
 
 ## Changelogs
 4.0.3 Fixed incorrect asset paths in Ming's test theme; added theme package preloading;   
-4.0.2 Decoupled Spine dashboard methods to use an external JS API, preparing for more dashboard types. Preparatory update; no behavioral change;   
+4.0.2 Decoupled Spine dashboard methods to use an external JS API, Preparatory update for more dashboard types, no behavioral change;   
 4.0.1 Adapted to Gugu Town update (added equipment and char replacement);   
 4.0.0 refactored setting panel, fix some bugs;   
 3.10.2 Adapted to Gugu Town update (added equipment replacement);   
