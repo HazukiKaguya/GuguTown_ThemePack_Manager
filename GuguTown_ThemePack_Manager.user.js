@@ -5,7 +5,7 @@
 // @name:ja     咕咕镇テーマパックマネージャー
 // @namespace   https://github.com/HazukiKaguya/GuguTown_ThemePack
 // @homepage    https://github.com/HazukiKaguya/GuguTown_ThemePack
-// @version     4.0.2
+// @version     4.0.3
 // @description WebGame GuguTown ThemePack Mannager.
 // @description:zh-CN 气人页游 咕咕镇 主题包管理器。
 // @description:zh-TW 氣人頁遊 咕咕鎮 主題包管理器。
@@ -17,10 +17,10 @@
 // @match       https://*.momozhen.com/*
 // @run-at      document-end
 // @require     https://update.greasyfork.org/scripts/450822/1098282/spine-webgl.js
-// @require     https://update.greasyfork.org/scripts/598975/1953217/gt-spine-kanban.js
-// @license     MIT License
+// @require     https://update.greasyfork.org/scripts/598975/1953300/gt-spine-kanban.js
 // @downloadURL https://github.com/HazukiKaguya/GuguTown_ThemePack_Manager/raw/main/GuguTown_ThemePack_Manager.user.js
 // @updateURL   https://github.com/HazukiKaguya/GuguTown_ThemePack_Manager/raw/main/GuguTown_ThemePack_Manager.user.js
+// @license     MIT License
 // @grant       none
 // ==/UserScript==
 /* eslint-env jquery */
@@ -33,7 +33,7 @@ if (window.location.pathname.indexOf('php') == -1 && window.location.pathname !=
   插件基础资产
   Basic Assets
 */
-let PluginVersion = '4.0.2', timeCheck = new Date().getTime(), LAConf, User;
+let PluginVersion = '4.0.3-dev1', timeCheck = new Date().getTime(), LAConf, User;
 const nullimg = 'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==',
     defConf = {
         "ThemePack": "testmain001",
@@ -115,7 +115,39 @@ const nullimg = 'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAA
                 "now": "(当前)",
                 "nofgimg": "此自定义主题包立绘功能不可用！",
                 "nospine": "此自定义主题包Spine看板娘功能不可用！",
-                "novoice": "此自定义主题包语音功能不可用！"
+                "novoice": "此自定义主题包语音功能不可用！",
+                "preloadTitle": "资源预加载",
+                "preload": "预加载",
+                "cacheClear": "清缓存",
+                "cacheClearAll": "清全部",
+                "cacheLoading": "本地缓存：读取中…",
+                "cacheEmpty": "本地缓存为空",
+                "cacheEntries": "本地缓存 {n} 项 / {size} MB（{themes}）",
+                "cacheStorage": "　站点存储 {used}",
+                "preloadProgress": "{n}/{total}",
+                "preloadDone": "资源预加载完成 {ok}/{total}（可读取 {read}, 仅暖磁盘缓存 {warm}{fail}{miss}{skip}, {secs}s）",
+                "preloadFailPart": ", 暖缓存失败 {n}",
+                "preloadMissPart": ", 缺失 {n}",
+                "preloadSkipPart": ", 跳过 {n}",
+                "preloadWarmNote": "另有 {warm} 个资源只进了浏览器磁盘缓存（这类资源服务器不返回 CORS 头，脚本读不到内容，因此存不进本地库）。它们不显示在上面的「本地缓存」统计里，但在 Network 面板里会显示 (disk cache)。",
+                "preloadWarmFail": "有 {fail} 个资源暖缓存失败（连接被重置）。下次预加载会自然重试。",
+                "preloadErrors": "前几个有问题的资源：",
+                "preloadCacheWrite": "本地缓存 写入 {stored}/{tried}（写失败 {putFailed}）",
+                "preloadCacheOff": "  [!] 缓存已关闭：{reason}",
+                "preloadCacheLastErr": "  最后错误：{err}",
+                "preloadNoScope": "没有缓存作用域（主题缺 INF.UID？），只暖了 HTTP 缓存。",
+                "preloadNoModule": "看板模块没加载，无法预加载。",
+                "preloadNoTheme": "还没有主题，跳过预加载。",
+                "preloadNoInventory": "缺少资源清单函数。",
+                "preloadInventoryFail": "读取主题资源清单失败。",
+                "preloadNothing": "这个主题没有可预加载的资源。",
+                "preloadMissing": "有 {n} 个资源服务器上确实没有（主题包声明了但没上传）。",
+                "preloadSkipped": "跳过 {n} 个主题未提供的可选资源（装备图标档位等）。",
+                "preloadStorageLine": "站点存储用量 {used}（本地库只存能读到的资源；配额远未用满，进不去的原因是 CORS 不是空间）",
+                "cacheCleared": "已清除本地资源缓存 {n} 项{which}",
+                "cacheClearedTheme": "（主题 {uid}）",
+                "cacheClearedAll": "（全部主题）",
+                "preloadNote": "首次预加载会把当前主题的全部素材抓进浏览器缓存，JS能读到的素材同时存进本地库（清缓存按钮只清这部分）。"
 
             },
             "errors": {
@@ -277,7 +309,39 @@ const nullimg = 'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAA
                 "now": "(當前)",
                 "nofgimg": "此自定義主題包立繪功能不可用！",
                 "nospine": "此自定義主題包Spine看板娘功能不可用！",
-                "novoice": "此自定義主題包語音功能不可用！"
+                "novoice": "此自定義主題包語音功能不可用！",
+                "preloadTitle": "資源預載",
+                "preload": "預載",
+                "cacheClear": "清快取",
+                "cacheClearAll": "清全部",
+                "cacheLoading": "本地快取：讀取中…",
+                "cacheEmpty": "本地快取為空",
+                "cacheEntries": "本地快取 {n} 項 / {size} MB（{themes}）",
+                "cacheStorage": "　站點儲存 {used}",
+                "preloadProgress": "{n}/{total}",
+                "preloadDone": "資源預載完成 {ok}/{total}（可讀取 {read}, 僅暖磁碟快取 {warm}{fail}{miss}{skip}, {secs}s）",
+                "preloadFailPart": ", 暖快取失敗 {n}",
+                "preloadMissPart": ", 缺失 {n}",
+                "preloadSkipPart": ", 跳過 {n}",
+                "preloadWarmNote": "另有 {warm} 個資源只進了瀏覽器磁碟快取（這類資源伺服器不返回 CORS 標頭，腳本讀不到內容，因此存不進本地快取）。它們不顯示在上面的「本地快取」統計裡，但在 Network 面板裡會顯示 (disk cache)。",
+                "preloadWarmFail": "有 {fail} 個資源暖快取失敗（連線被重置）。下次預載會自然重試。",
+                "preloadErrors": "前幾個有問題的資源：",
+                "preloadCacheWrite": "本地快取 寫入 {stored}/{tried}（寫入失敗 {putFailed}）",
+                "preloadCacheOff": "  [!] 快取已關閉：{reason}",
+                "preloadCacheLastErr": "  最後錯誤：{err}",
+                "preloadNoScope": "沒有快取作用域（主題缺 INF.UID？），只暖了 HTTP 快取。",
+                "preloadNoModule": "看板模組未載入，無法預載。",
+                "preloadNoTheme": "還沒有主題，跳過預載。",
+                "preloadNoInventory": "缺少資源清單函式。",
+                "preloadInventoryFail": "讀取主題資源清單失敗。",
+                "preloadNothing": "這個主題沒有可預載的資源。",
+                "preloadMissing": "有 {n} 個資源伺服器上確實沒有（主題包宣告了但沒上傳）。",
+                "preloadSkipped": "跳過 {n} 個主題未提供的可選資源（裝備圖示檔位等）。",
+                "preloadStorageLine": "站點儲存用量 {used}（本地快取只存能讀到的資源；配額遠未用滿，進不去的原因是 CORS 不是空間）",
+                "cacheCleared": "已清除本地資源快取 {n} 項{which}",
+                "cacheClearedTheme": "（主題 {uid}）",
+                "cacheClearedAll": "（全部主題）",
+                "preloadNote": "首次預載會把當前主題的全部素材抓進瀏覽器快取，JS能讀到的素材同時存進本地快取（清快取按鈕只清這部分）。"
 
             },
             "errors": {
@@ -439,7 +503,39 @@ const nullimg = 'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAA
                 "now": "(現在)",
                 "nofgimg": "このカスタムテーマパックの立ち絵機能は使用できません！",
                 "nospine": "このカスタムテーマパックのSpine看板娘機能は使用できません！",
-                "novoice": "このカスタムテーマパックのボイス機能は使用できません！"
+                "novoice": "このカスタムテーマパックのボイス機能は使用できません！",
+                "preloadTitle": "アセットの先読み",
+                "preload": "先読み",
+                "cacheClear": "キャッシュ削除",
+                "cacheClearAll": "すべて削除",
+                "cacheLoading": "ローカルキャッシュ：読み込み中…",
+                "cacheEmpty": "ローカルキャッシュは空です",
+                "cacheEntries": "ローカルキャッシュ {n} 件 / {size} MB（{themes}）",
+                "cacheStorage": "　サイトストレージ {used}",
+                "preloadProgress": "{n}/{total}",
+                "preloadDone": "アセットの先読み完了 {ok}/{total}（読み取り {read}, ディスクキャッシュのみ {warm}{fail}{miss}{skip}, {secs}秒）",
+                "preloadFailPart": ", キャッシュ失敗 {n}",
+                "preloadMissPart": ", 欠落 {n}",
+                "preloadSkipPart": ", スキップ {n}",
+                "preloadWarmNote": "別に {warm} 件のアセットはブラウザのディスクキャッシュにのみ格納されました（これらのサーバーは CORS ヘッダーを返さないため、スクリプトは内容を読めず、ローカルキャッシュには保存できません）。上記の「ローカルキャッシュ」統計には表示されませんが、Network パネルでは (disk cache) と表示されます。",
+                "preloadWarmFail": "{fail} 件のキャッシュに失敗しました（接続がリセットされました）。次回の先読みで自動的に再試行されます。",
+                "preloadErrors": "問題のあるアセット（先頭のみ）：",
+                "preloadCacheWrite": "ローカルキャッシュ 書き込み {stored}/{tried}（失敗 {putFailed}）",
+                "preloadCacheOff": "  [!] キャッシュは無効です：{reason}",
+                "preloadCacheLastErr": "  最後のエラー：{err}",
+                "preloadNoScope": "キャッシュスコープがありません（テーマに INF.UID がない？）。HTTP キャッシュのみ温めました。",
+                "preloadNoModule": "カンバンモジュールが読み込まれていないため、先読みできません。",
+                "preloadNoTheme": "テーマがまだないため、先読みをスキップします。",
+                "preloadNoInventory": "アセット一覧の関数がありません。",
+                "preloadInventoryFail": "テーマのアセット一覧の読み取りに失敗しました。",
+                "preloadNothing": "このテーマに先読みできるアセットはありません。",
+                "preloadMissing": "{n} 件のアセットがサーバー上に存在しません（テーマが宣言しているが未アップロード）。",
+                "preloadSkipped": "テーマが提供していない任意アセットを {n} 件スキップしました（装備アイコンの段階など）。",
+                "preloadStorageLine": "サイトストレージ使用量 {used}（ローカルキャッシュは読めたアセットのみ保存します。配当は十分に余っており、入らない原因は CORS であって容量ではありません）",
+                "cacheCleared": "ローカルアセットキャッシュを {n} 件削除しました{which}",
+                "cacheClearedTheme": "（テーマ {uid}）",
+                "cacheClearedAll": "（すべてのテーマ）",
+                "preloadNote": "初回の先読みで現在のテーマの全アセットをブラウザのキャッシュに取り込みます,JSに読み取れたアセットはローカルキャッシュにも保存されます（キャッシュ削除ボタンはこちらだけを消します）。"
 
             },
             "errors": {
@@ -602,7 +698,39 @@ const nullimg = 'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAA
                 "now": "(current)",
                 "nofgimg": "The FG/CG Function in this Custom ThemePack is unavailable !",
                 "nospine": "The Spine Kanban Function in this Custom ThemePack is unavailable !",
-                "novoice": "The Voice Function in this Custom ThemePack is unavailable !"
+                "novoice": "The Voice Function in this Custom ThemePack is unavailable !",
+                "preloadTitle": "Resource Preload",
+                "preload": "Preload",
+                "cacheClear": "Clear Cache",
+                "cacheClearAll": "Clear All",
+                "cacheLoading": "Local cache: loading…",
+                "cacheEmpty": "Local cache is empty",
+                "cacheEntries": "Local cache {n} items / {size} MB ({themes})",
+                "cacheStorage": "　Site storage {used}",
+                "preloadProgress": "{n}/{total}",
+                "preloadDone": "Preload finished {ok}/{total} (read {read}, disk cache only {warm}{fail}{miss}{skip}, {secs}s)",
+                "preloadFailPart": ", warm failed {n}",
+                "preloadMissPart": ", missing {n}",
+                "preloadSkipPart": ", skipped {n}",
+                "preloadWarmNote": "{warm} assets went only into the browser disk cache. The server sends no CORS header for those, so the script cannot read their contents and cannot store them locally. They do not appear in the local cache figure above, but the Network panel shows them as (disk cache).",
+                "preloadWarmFail": "{fail} assets failed to warm (connection reset). The next preload retries them automatically.",
+                "preloadErrors": "First few problematic assets:",
+                "preloadCacheWrite": "Local cache wrote {stored}/{tried} (failed {putFailed})",
+                "preloadCacheOff": "  [!] Cache is off: {reason}",
+                "preloadCacheLastErr": "  last error: {err}",
+                "preloadNoScope": "No cache scope (theme has no INF.UID?), so only the HTTP cache was warmed.",
+                "preloadNoModule": "The kanban module is not loaded, so preloading is unavailable.",
+                "preloadNoTheme": "No theme yet, skipping the preload.",
+                "preloadNoInventory": "The asset inventory function is missing.",
+                "preloadInventoryFail": "Failed to read the theme asset inventory.",
+                "preloadNothing": "This theme has no assets to preload.",
+                "preloadMissing": "{n} assets are genuinely absent from the server (declared by the theme but not uploaded).",
+                "preloadSkipped": "Skipped {n} optional assets the theme does not provide (equipment icon tiers, etc.).",
+                "preloadStorageLine": "Site storage used {used} (the local cache holds only readable assets; quota is far from full, so the limit is CORS, not space)",
+                "cacheCleared": "Cleared {n} locally cached assets{which}",
+                "cacheClearedTheme": " (theme {uid})",
+                "cacheClearedAll": " (all themes)",
+                "preloadNote": "The first preload pulls every asset of the current theme into the browser cache, Assets the script can read are also stored in the local cache, and the Clear Cache buttons only clear that part."
 
             },
             "errors": {
@@ -890,7 +1018,7 @@ const nullimg = 'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAA
                 "梦": "meng/",
                 "薇": "wei/",
                 "伊": "yi/",
-                "冥": "min/",
+                "冥": "ming/",
                 "命": "life/",
                 "希": "xii/",
                 "霞": "xia/",
@@ -1075,7 +1203,7 @@ const nullimg = 'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAA
                     "re": 0.8
                 },
                 "冥": {
-                    "uri": "min/",
+                    "uri": "ming/",
                     "type": "3",
                     "hasRarity6": true,
                     "wi": -350,
@@ -1137,7 +1265,7 @@ const nullimg = 'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAA
                 "梦": "meng/",
                 "薇": "wei/",
                 "伊": "yi/",
-                "冥": "min/",
+                "冥": "ming/",
                 "命": "life",
                 "希": "xii/",
                 "霞": "xia/",
@@ -2465,30 +2593,511 @@ SelLang.items = items;
 SelLang.chars = chars;
 let err = SelLang.errors;
 /* All Kanban Pre init */
+
+
+function themeGetClass(type) {
+    if (typeof GTSpineKanban != "undefined" && GTSpineKanban && typeof GTSpineKanban.getClass == "function") {
+        return GTSpineKanban.getClass(type);
+    };
+    /* 模块不在时的兜底：引擎的规则就是补零到两位 */
+    let t = parseInt(type);
+    if (!(t > 0)) { return "00"; };
+    return t < 10 ? "0" + t : String(t);
+};
+/* The six URLs for one character, using the same formulas spineload() uses. */
+function assetUrlsFor(assest, uri, info, cls) {
+    if (!assest || !uri) { return []; };
+    let baseId = info && info.hasSpecialBase ? uri : assest.baseId;
+    let urls = [assest.common + baseId + assest.skeleton];
+    let list = assest.addAnimations || [];
+    for (let i = 0; i < list.length; i++) {
+        urls.push(assest.common + baseId + '_' + list[i] + assest.ext);
+    };
+    urls.push(assest.common + themeGetClass(cls) + assest.type);
+    urls.push(assest.unit + uri + assest.skill);
+    urls.push(assest.unit + uri + assest.texture.pos);
+    urls.push(assest.unit + uri + assest.texture.img);
+    return urls;
+};
+
+function themeAssetUrls(theme, opts) {
+    opts = opts || {};
+    let urls = [];
+    function add(u, optional) {
+        if (!u || typeof u != 'string') { return; };
+        /* an inline data URI is already local: nothing to warm */
+        if (u.indexOf('data:') === 0) { return; };
+        let seen = -1;
+        for (let i = 0; i < urls.length; i++) { if (urls[i].u == u) { seen = i; break; }; };
+        if (seen < 0) { urls.push({ u: u, optional: !!optional }); }
+        /* a URL required by one caller and optional for another is required overall */
+        else if (!optional) { urls[seen].optional = false; };
+    };
+    function addAll(list, optional) {
+        for (let i = 0; i < list.length; i++) { add(list[i], optional); };
+    };
+    if (!theme) { return urls; };
+    let COMP = (theme.INF && theme.INF.COMP) || {};
+    let names = opts.names || null;
+
+    /* ---- spine kanban ---- */
+    if (COMP.SpineKanban && theme.SpineKanban && theme.SpineKanban.assest) {
+        let assest = theme.SpineKanban.assest;
+        let conf = theme.SpineKanban.conf || {};
+        let list = names || Object.keys(conf);
+        let classes = opts.classes;
+        if (!classes || !classes.length) { classes = [1, 2, 3]; };
+        for (let i = 0; i < list.length; i++) {
+            let info = conf[list[i]] || conf.fallback || {};
+            let cls = parseInt(info.type);
+            addAll(assetUrlsFor(assest, info.uri, info, cls));
+            for (let c = 0; c < classes.length; c++) {
+                if (classes[c] == cls) { continue; };
+                addAll(assetUrlsFor(assest, info.uri, info, classes[c]));
+            };
+        };
+        if (theme.SpineKanban.bg && theme.SpineKanban.bg.url) { add(theme.SpineKanban.bg.url); };
+    };
+
+    /* ---- character tachie (立绘) ---- */
+    if (COMP.CharTachie && theme.CharTachie && theme.CharTachie.uri) {
+        let t = theme.CharTachie;
+        let keys = names || Object.keys(t.uri);
+        for (let i = 0; i < keys.length; i++) {
+            let k = keys[i];
+            if (!t.uri[k]) { continue; };
+            let base = t.common + t.uri[k];
+            /* every pose table the theme declares, so one pass covers them all */
+            let poses = ['HeadFG', 'LeftFG', 'CG', 'LeftPKFG', 'RightPKFG'];
+            for (let p = 0; p < poses.length; p++) {
+                let v = t[poses[p]] && t[poses[p]][k];
+                if (v !== undefined && v !== null) { add(base + v + (t.ext || '')); };
+            };
+        };
+    };
+
+    /* ---- creature art ---- */
+    if (COMP.MobsTachie && theme.MobsTachie && theme.MobsTachie.uri) {
+        let t = theme.MobsTachie;
+        for (let k of Object.keys(t.uri)) { add(t.common + t.uri[k] + (t.ext || '')); };
+    };
+
+    /* ---- voice ---- */
+    if (COMP.CharSounds && theme.CharSounds && theme.CharSounds.uri) {
+        let t = theme.CharSounds;
+        let ext = t.ext || '.mp3';
+        if (t.uri.on) { add(t.common + t.uri.on + ext); };
+        if (t.uri.off) { add(t.common + t.uri.off + ext); };
+        let conf = t.conf || {};
+        let keys = names || Object.keys(conf);
+        let cues = ['levelup', 'colle', 'change', 'power', 'win', 'lose', 'reset', 'exp', 'battle'];
+        for (let i = 0; i < keys.length; i++) {
+            let k = keys[i];
+            let entry = conf[k];
+            
+            let uri = (entry && typeof entry == 'object' && entry.uri) ? entry.uri : t.uri[k];
+            if (!uri) { continue; };
+            let base = t.common + uri;
+            if (base.charAt(base.length - 1) != '/') { base += '/'; };
+            if (entry && typeof entry == 'object') {
+                for (let type of Object.keys(entry)) {
+                    if (type == 'uri') { continue; };
+                    let v = entry[type];
+                    if (v === undefined || v === null || v === '') { continue; };
+                    /* a list means variants of one cue: warm them all */
+                    if (Array.isArray(v)) {
+                        for (let n = 0; n < v.length; n++) { add(base + v[n] + ext); };
+                    }
+                    else { add(base + v + ext); };
+                };
+            }
+            else {
+                /* no per-character table: the conventional cue names still apply */
+                for (let c = 0; c < cues.length; c++) { add(base + cues[c] + ext); };
+                for (let n = 0; n < 4; n++) { add(base + n + ext); };
+            };
+        };
+    };
+
+    let ICON_LEVELS = ['0', '1', '2', '3', '4', '5'];      /* equipment colour tiers */
+    let DESSERT_VARIANTS = ['', '_1', '_2', '_3'];          /* base + three qualities */
+    /* style.one === true 表示「每项单图」：额外的档位/品质变体根本不存在，
+       主题配置已经说清了形状，不该再去生成、更不该请求 —— 每探一个就是一条 404。 */
+    function isOneStyle(info) {
+        return !!(info && info.style && info.style.one === true);
+    };
+
+    /* equipment: 两张表，值是目录，文件 = <dir><档位><ext> */
+    if (COMP.EquipIcons && theme.EquipIcons) {
+        let t = theme.EquipIcons;
+        let ext = t.ext || '.gif';
+        let one = isOneStyle(t);
+        /* 单图只有 0 档；否则 0..5（0 素色，1-5 颜色档） */
+        let levels = one ? ['0'] : ICON_LEVELS;
+        for (let tableName of ['defuri', 'olduri']) {
+            let table = t[tableName];
+            if (!table) { continue; };
+            for (let k of Object.keys(table)) {
+                let dir = String(table[k]);
+                if (dir.charAt(dir.length - 1) != '/') { dir += '/'; };
+                for (let n = 0; n < levels.length; n++) {
+                    /* 单图模式主题必须提供；多档模式允许只出部分档位 */
+                    add(t.common + dir + levels[n] + ext, !one);
+                };
+            };
+        };
+    };
+
+    /* desserts: 表里存的是**文件名主干**（不是目录），后面按需接品质后缀。
+       真实包: common = ".../test/eq/", uri['星铜苹果护身符'] = "apple", style.one = true,
+       实际文件是 eq/apple.gif。（早期版本把它当目录又重新拼了一次，生成
+       eq/apple/apple.gif —— 12 条必然 404；下面的 ItemIcons 一直是对的。） */
+    if (COMP.DessertIcons && theme.DessertIcons && theme.DessertIcons.uri) {
+        let t = theme.DessertIcons;
+        let ext = t.ext || '.gif';
+        let one = isOneStyle(t);
+        let variants = one ? [''] : DESSERT_VARIANTS;
+        for (let k of Object.keys(t.uri)) {
+            let stem = String(t.uri[k]);
+            for (let n = 0; n < variants.length; n++) {
+                /* 品质变体同样：非单图时才存在，且仍算可选（包可能只提供部分品质） */
+                add(t.common + stem + variants[n] + ext, !one && n > 0);
+            };
+        };
+    };
+
+    /* items: the table already holds the filename stem */
+    if (COMP.ItemIcons && theme.ItemIcons && theme.ItemIcons.uri) {
+        let t = theme.ItemIcons;
+        let ext = t.ext || '.gif';
+        for (let k of Object.keys(t.uri)) { add(t.common + t.uri[k] + ext); };
+    };
+
+    /* ---- image kanban + background ---- */
+    if (COMP.ImageKanban && theme.ImageKanban && theme.ImageKanban.uri) {
+        let t = theme.ImageKanban;
+        let a = t.asset || {};
+        let keys = names || Object.keys(t.uri);
+        for (let i = 0; i < keys.length; i++) {
+            let k = keys[i];
+            if (!t.uri[k]) { continue; };
+            let poses = ['idle', 'win', 'lose'];
+            for (let p = 0; p < poses.length; p++) {
+                let v = t[poses[p]] && t[poses[p]][k];
+                if (v !== undefined && v !== null) {
+                    add(a.common + t.uri[k] + v + (a.ext || ''));
+                };
+            };
+        };
+    };
+    if (theme.ImageKanban && theme.ImageKanban.bg) { add(theme.ImageKanban.bg); };
+    if (theme.Style && theme.Style.kanbanbg) { add(theme.Style.kanbanbg); };
+
+    return urls;
+};
+
 /* ==========================================================================
-   看板娘拖拽组件 Drag COMP —— 所有看板种类共用
+   资源预加载 / 本地缓存 Resource Preload + Cache
    --------------------------------------------------------------------------
-   放在本脚本而不是看板模块里，原因有两个：
-     1. 各看板种类（Spine / 图片 / 以后新增）都要用，属通用交互；
-     2. 「拖完要不要记录位置」是宿主策略（存 localStorage / 只存内存 / 不存），
-        不该塞进看板渲染模块的 API。
-   判定规则：按住 >= 0.2s 或移动 > 2px 算拖拽，否则算点击。
+   预加载的全部逻辑都在这里。看板模块只提供两件与预加载无关的通用能力：
+     · storeAsset(url, bytes) —— 把已经下载到的字节写进本地缓存
+     · setCacheScopeFromTheme(theme) —— 告诉缓存当前的键前缀
+   下载策略（并发、CORS 降级、统计口径）属于宿主，不属于看板 API。
+
+   文案全部走 SelLang.msg（见 lang 表的 preload* / cache* 键），与插件其余部分一致。
+
+   为什么需要降级：有些 CDN 不返回 Access-Control-Allow-Origin，文件照样 200 送达，
+   但 JS 读不到响应体。这时改用 no-cors 请求（甚至 Image 元素）仍能让浏览器把文件
+   存进 HTTP 缓存 —— 预加载的目的只是「让文件进缓存」，不是「读到内容」。
    ========================================================================== */
+
+/* 取一条本地化文案并填充 {占位符}。文案缺失时回退到键名，绝不抛异常。 */
+function tpmT(key, vars) {
+    let s = (SelLang && SelLang.msg && SelLang.msg[key]);
+    if (typeof s != "string") { return key; };
+    if (vars) {
+        for (let k in vars) {
+            if (Object.prototype.hasOwnProperty.call(vars, k)) {
+                s = s.split("{" + k + "}").join(String(vars[k]));
+            };
+        };
+    };
+    return s;
+};
+
+/* 把缓存作用域指向当前主题：模块用它拼缓存键。读不到 UID 时视为「不缓存」。 */
+function syncCacheScope() {
+    if (typeof GTSpineKanban == "undefined" || !GTSpineKanban || typeof GTSpineKanban.setCacheScopeFromTheme != "function") {
+        return null;
+    };
+    return GTSpineKanban.setCacheScopeFromTheme(nowTheme);
+};
+
+/* 把已读到的字节写进本地缓存（模块负责存储，我们负责决定写什么）。
+   写失败不能冒泡成未处理的 rejection —— 缓存出问题绝不该影响看板娘。 */
+function storeAsset(url, buf) {
+    if (typeof GTSpineKanban == "undefined" || !GTSpineKanban || typeof GTSpineKanban.storeAsset != "function") {
+        return false;
+    };
+    try {
+        let p = GTSpineKanban.storeAsset(url, buf);
+        if (p && typeof p["catch"] == "function") { p["catch"](function () { }); };
+    } catch (e) { return false; };
+    return true;
+};
+
+/* 不需要读响应体，只要让浏览器把文件抓进缓存 */
+function warmNoCors(url) {
+    return fetch(url, { mode: "no-cors", credentials: "omit" })
+        /* 只在真的拿到 opaque 响应时才算成功。连接被重置 / 被中止时 fetch 会 reject，
+           不能把它记成「已暖缓存」—— 那会把失败说成成功。 */
+        .then(function (res) { return !!(res && res.type == "opaque"); })
+        ["catch"](function () { return false; });
+};
+
+/* 最后兜底：图片加载是普通请求，同样会进 HTTP 缓存 */
+function warmImage(url) {
+    if (typeof Image != "function") { return Promise.resolve(false); };
+    return new Promise(function (resolve) {
+        let img = new Image(), done = false;
+        function finish(ok) { if (done) { return; }; done = true; resolve(ok); };
+        img.onload = function () { finish(true); };
+        img.onerror = function () { finish(false); };
+        img.src = url;
+        setTimeout(function () { finish(false); }, 8000);
+    });
+};
+
+/* 预加载一批 URL。返回 { done, warmed, missing, skipped, blocked, failedWarm, total, errors }。
+   blocked 保留为 0 恒值，仅为兼容旧调用方的字段读取。
+
+   为什么可选资源走另一条路：可选资源的存在与否**不影响任何结果**（有就进缓存，
+   没有就本来不需要），所以不需要先探测一次。而且探测必然产生一条
+   「blocked by CORS policy / net::ERR_FAILED」，每个可选资源两行 —— 有 225 个
+   可选资源时控制台会被这类**无害的**报错淹没，把真正的失败盖掉。
+   直接一次 no-cors：有就暖到，没有就罢，控制台一行不刷。 */
+function preloadUrls(urls, onProgress) {
+    let total = urls.length;
+    let done = 0, warmed = 0, missing = 0, skipped = 0, blocked = 0, failedWarm = 0;
+    let errors = [];
+    function tick(url) { if (typeof onProgress == "function") { onProgress(done + warmed + missing + skipped + blocked + failedWarm, total, url); }; };
+
+    return Promise.all(urls.map(function (entry) {
+        let url = typeof entry == "string" ? entry : entry.u;
+        let optional = typeof entry == "string" ? false : !!entry.optional;
+        /* warmOnly：宿主已经知道「这份资源服务器不给脚本读」。对它做 cors 探测只有两个结果：
+           读不到（照旧），或者在控制台留下 blocked by CORS policy + net::ERR_FAILED 两条。
+           探测唯一能换来的是「404 → 缺失」这个分类；宿主不需要时就不该付这份噪音。 */
+        let warmOnly = typeof entry == "string" ? false : !!entry.warmOnly;
+
+        /* 可选：一次 no-cors 就够，成不成都不报错 */
+        if (optional || warmOnly) {
+            return warmNoCors(url).then(function (ok) {
+                if (ok) { warmed++; } else if (optional) { skipped++; } else { failedWarm++; };
+                tick(url);
+                return 0;
+            });
+        };
+
+        function countMissing(why) {
+            missing++;
+            if (errors.length < 20) { errors.push({ url: url, why: why }); };
+            tick(url);
+        };
+
+        return fetch(url, { mode: "cors", credentials: "omit" })
+            .then(function (res) {
+                if (res.status >= 400) {
+                    let err = new Error("HTTP " + res.status);
+                    err.http = res.status;
+                    throw err;
+                };
+                return res.arrayBuffer();
+            })
+            .then(function (buf) {
+                done++;
+                storeAsset(url, buf);
+                tick(url);
+                return buf.byteLength;
+            })
+            ["catch"](function (err) {
+                if (err && err.http) { countMissing("HTTP " + err.http); return 0; };
+                /* 不是 HTTP 状态码：请求本身失败 —— 最常见的原因是服务器没给
+                   Access-Control-Allow-Origin，浏览器因此不把响应体交给脚本。
+                   这**不代表文件不存在**：DevTools 会同时显示 200 (OK) 和
+                   net::ERR_FAILED，很容易被误读成下载失败。
+                   换 no-cors 暖磁盘缓存（它不产生「blocked by CORS policy」）。 */
+                return warmNoCors(url).then(function (ok) {
+                    if (ok) { warmed++; tick(url); return 0; };
+                    return warmImage(url).then(function (ok2) {
+                        if (ok2) { warmed++; tick(url); return 0; };
+                        /* 暖缓存也没成（常见于连接被重置）。这不是「服务器没有该文件」，
+                           也不能算成功 —— 单独计数，下次预加载会自然重试。 */
+                        failedWarm++;
+                        if (errors.length < 20) { errors.push({ url: url, why: tpmT("preloadWarmFail", { fail: 1 }) }); };
+                        tick(url);
+                        return 0;
+                    });
+                });
+            });
+    })).then(function () {
+        return { done: done, warmed: warmed, missing: missing, skipped: skipped,
+                 blocked: blocked, failedWarm: failedWarm, total: total, errors: errors };
+    });
+};
+
+/* 浏览器的实际存储用量 vs 配额。用来一眼排除「配额不够」这个方向的怀疑 ——
+   那 447 个进不了本地库是因为读不到内容（CORS），跟配额无关。 */
+function fetchStorageEstimate() {
+    if (typeof navigator == "undefined" || !navigator.storage || typeof navigator.storage.estimate != "function") {
+        return Promise.resolve(null);
+    };
+    return navigator.storage.estimate().then(function (e) {
+        return { usage: e.usage || 0, quota: e.quota || 0 };
+    })["catch"](function () { return null; });
+};
+
+function storageLine(e) {
+    if (!e) { return "n/a"; };
+    return (e.usage / 1048576).toFixed(1) + " MB / "
+        + (e.quota / 1073741824).toFixed(1) + " GB";
+};
+
+/* 哪些资源值得用 cors 去读（读到了既能进本地库、又能把 404 报准）。
+   判据不写死域名，而是从**模块自己加载的那批文件**推出来：引擎要读骨架和贴图，
+   它们一定能被脚本读到，所以它们所在的域就是「可读域」；同一域上的其它资源
+   （语音 / 立绘 / 图标）也就同样可读。域不同的一律标记 warmOnly。
+   实测收益：p.inari.site 那 258 个必加载资源每次读不到却要刷 500+ 行报错。 */
+function readableHostOf(list) {
+    for (let i = 0; i < list.length; i++) {
+        let u = typeof list[i] == "string" ? list[i] : list[i].u;
+        if (/\.cysp(\?|$)/.test(u) || /\.atlas(\?|$)/.test(u)) {
+            let m = /^https?:\/\/([^\/]+)/.exec(u);
+            if (m) { return m[1]; };
+        };
+    };
+    return null;
+};
+
+function preloadThemeAssets() {
+    if (typeof GTSpineKanban == "undefined" || !GTSpineKanban) {
+        console.warn("ThemePack: " + tpmT("preloadNoModule"));
+        return;
+    };
+    if (!nowTheme) { console.log("ThemePack: " + tpmT("preloadNoTheme")); return; };
+    if (typeof themeAssetUrls != "function") { console.warn("ThemePack: " + tpmT("preloadNoInventory")); return; };
+
+    syncCacheScope();
+    let urls;
+    try { urls = themeAssetUrls(nowTheme); }
+    catch (e) { console.warn("ThemePack: " + tpmT("preloadInventoryFail"), e); return; };
+    if (!urls.length) { console.log("ThemePack: " + tpmT("preloadNothing")); return; };
+
+    /* 标记出「读也读不到」的那些，让它们走一次 no-cors 就好 */
+    let readable = readableHostOf(urls);
+    if (readable) {
+        for (let i = 0; i < urls.length; i++) {
+            let e = urls[i];
+            let u = typeof e == "string" ? e : e.u;
+            let m = /^https?:\/\/([^\/]+)/.exec(u);
+            if (m && m[1] != readable) {
+                if (typeof e == "string") { urls[i] = { u: e, warmOnly: true }; }
+                else { e.warmOnly = true; };
+            };
+        };
+    };
+
+    let $btn = $(".tpmSetting#KanbanPreload");
+    let $row = $(".tpmSetting#KanbanPreloadNote");
+    let label = $btn.length ? $btn[0].value : null;
+    let t0 = Date.now();
+    if ($btn.length) { $btn[0].disabled = true; $btn[0].value = tpmT("preloadProgress", { n: 0, total: urls.length }); };
+
+    preloadUrls(urls, function (n, total) {
+        /* 按钮与菜单行都跟着进度更新，用户不开控制台也能看到在动 */
+        let txt = tpmT("preloadProgress", { n: n, total: total });
+        if ($btn.length) { $btn[0].value = txt; };
+        if ($row.length) { $row[0].textContent = txt; };
+    }).then(function (r) {
+        let secs = ((Date.now() - t0) / 1000).toFixed(1);
+        let fail = r.failedWarm ? tpmT("preloadFailPart", { n: r.failedWarm }) : "";
+        let miss = r.missing ? tpmT("preloadMissPart", { n: r.missing }) : "";
+        let skip = r.skipped ? tpmT("preloadSkipPart", { n: r.skipped }) : "";
+        console.log("ThemePack: " + tpmT("preloadDone", { ok: r.done + r.warmed + r.missing + r.skipped,
+            total: r.total, read: r.done, warm: r.warmed, fail: fail, miss: miss, skip: skip, secs: secs }));
+        /* 面板数字只反映本地库。能读到的才进本地库；其余只进浏览器磁盘缓存，
+           面板看不到 —— 这不是失效，两处存储本来就是分开的。 */
+        if (r.warmed) { console.log("ThemePack: " + tpmT("preloadWarmNote", { warm: r.warmed })); };
+        if (r.failedWarm) { console.warn("ThemePack: " + tpmT("preloadWarmFail", { fail: r.failedWarm })); };
+        if (r.errors.length) {
+            console.log("ThemePack: " + tpmT("preloadErrors"));
+            r.errors.slice(0, 6).forEach(function (e) { console.log("   " + e.why + "  " + e.url); });
+        };
+        /* 报告本地缓存的实际写入情况（模块侧统计） */
+        if (typeof GTSpineKanban.cacheDiag == "function") {
+            let d = GTSpineKanban.cacheDiag();
+            console.log("ThemePack: " + tpmT("preloadCacheWrite", { stored: d.stored, tried: d.tried, putFailed: d.putFailed })
+                + (d.off ? tpmT("preloadCacheOff", { reason: d.offReason }) : "")
+                + (d.lastError ? tpmT("preloadCacheLastErr", { err: d.lastError }) : ""));
+            if (!d.scope) { console.warn("ThemePack: " + tpmT("preloadNoScope")); };
+        };
+        if ($btn.length) { $btn[0].disabled = false; $btn[0].value = label; };
+        if ($row.length) {
+            $row[0].textContent = (r.missing ? tpmT("preloadMissing", { n: r.missing }) : "")
+                + (r.skipped ? " " + tpmT("preloadSkipped", { n: r.skipped }) : "")
+                || tpmT("preloadNote");
+        };
+        if (r.missing) { console.warn("ThemePack: " + tpmT("preloadMissing", { n: r.missing })); };
+        if (r.skipped) { console.log("ThemePack: " + tpmT("preloadSkipped", { n: r.skipped })); };
+        /* 把浏览器分配到的配额也报出来：进不了本地库与配额无关。 */
+        fetchStorageEstimate().then(function (est) {
+            console.log("ThemePack: " + tpmT("preloadStorageLine", { used: storageLine(est) }));
+        });
+    });
+};
+
+/* 报告本地缓存占用，并顺手申请一次持久化存储（浏览器可能拒绝，不影响功能）。 */
+function refreshCacheInfo() {
+    if (typeof GTSpineKanban == "undefined" || !GTSpineKanban) { return; };
+    let $info = $(".tpmSetting#KanbanCacheInfo");
+    if (typeof GTSpineKanban.requestPersistentStorage == "function") {
+        GTSpineKanban.requestPersistentStorage();
+    };
+    if (typeof GTSpineKanban.cacheStats != "function") { return; };
+    GTSpineKanban.cacheStats().then(function (s) {
+        let mb = (s.bytes / 1048576).toFixed(1);
+        let themes = Object.keys(s.byTheme || {}).join(", ");
+        return fetchStorageEstimate().then(function (est) {
+            if ($info.length) {
+                $info[0].textContent = (s.entries
+                    ? tpmT("cacheEntries", { n: s.entries, size: mb, themes: themes })
+                    : tpmT("cacheEmpty"))
+                    + tpmT("cacheStorage", { used: storageLine(est) });
+            };
+        });
+    });
+};
+
+/* 清掉本地缓存。默认只清当前主题；清完下次加载会重新联网。 */
+function clearAssetCache(allThemes) {
+    if (typeof GTSpineKanban == "undefined" || typeof GTSpineKanban.clearCache != "function") { return; };
+    let uid = null;
+    if (!allThemes && nowTheme && nowTheme.INF && nowTheme.INF.UID) { uid = String(nowTheme.INF.UID); };
+    GTSpineKanban.clearCache(uid).then(function (n) {
+        console.log("ThemePack: " + tpmT("cacheCleared", { n: n,
+            which: uid ? tpmT("cacheClearedTheme", { uid: uid }) : tpmT("cacheClearedAll") }));
+        refreshCacheInfo();
+    });
+};
+/* drag component: shared by every kanban kind; judge by hold >= 0.2s or move > 2px */
 const KANBAN_DRAG_HOLD_MS = 200;
 function dragfunc(obj, hooks) {
     hooks = hooks || {};
     if (!obj) { return; };
-    /* onDragStart fires once per drag, so it must be re-armed on every press. Reading it a
-       single time when the component was attached (the earlier bug) left it nulled after the
-       first drag, so only that first drag ever played its animation. */
     let rt = IMGPos.X, bo = IMGPos.Y, ww, wh, start = null;
 
     obj.onmousedown = function (event) {
         event = event || window.event;
-        /* Optional gate: the host decides whether this press may start a drag at all.
-           The Spine kanban uses it to require that the press landed on the character, so
-           dragging the empty part of the canvas does nothing. Checked once, on press: a
-           drag that starts on the character stays a drag even if the cursor leaves it. */
         if (typeof hooks.onHit == "function" && !hooks.onHit(event.clientX, event.clientY)) { return; };
         obj.setCapture && obj.setCapture();
         /* re-arm the once-per-drag hook for THIS press */
@@ -2554,9 +3163,6 @@ function dragfunc(obj, hooks) {
     }, { passive: false });
 };
 
-/* spine-webgl 运行时是否可用。看板模块本身通过 @require 引入，总是存在；
-   这里判断的是它依赖的 WebGL 运行时。原引擎在使用者顶层直接 new spine.webgl.Matrix4()，
-   @require 一失败，脚本求值阶段就抛 ReferenceError，连设置面板一起挂掉。 */
 function spineLibReady() {
     return typeof spine != "undefined" && !!spine && !!spine.webgl;
 };
@@ -2576,8 +3182,6 @@ let spineKanban = null;
    现在完全归 gt-spine-kanban 模块所有，通过 spineKanban 实例的方法读写，
    这里不再保留副本（保留只会是永不生效的假状态）。 */
 let KanbanSel, KanbanBG, KanbanCommon, KanbanSkill, KanbanCharUri, KanbanAssest, CharStatus;
-/* 当前职介。引擎那份在模块里（spineKanban.getPagetype()），这份是给脚本自己在
-   绑定/重建实例之前暂存用的——模块还没建立时无从查询。 */
 let spinePagetype = 0;
 
 
@@ -3671,8 +4275,13 @@ function getNowEquip() {
     /* 职介变化才重新加载骨架，避免重复请求 */
     if (spinePagetype == cls) { return; };
     spinePagetype = cls;
-    /* 职介/角色变了让模块重新加载骨架 */
-    if (spineKanban) { spineKanban.load(nowTheme.SpineKanban.conf[nowCard] || nowTheme.SpineKanban.conf.fallback, spinePagetype); };
+    /* 职介/角色变了让模块重新加载骨架。
+       注意公开 API 里这个名字是 switchCharacter —— `load` 只存在于模块**内层**实例上，
+       宿主拿到的是 attach() 返回的公开包装对象，它没有 load（调用会抛
+       "spineKanban.load is not a function"）。switchCharacter 内部就是转调 inst.load。 */
+    if (spineKanban && typeof spineKanban.switchCharacter == "function") {
+        spineKanban.switchCharacter(nowTheme.SpineKanban.conf[nowCard] || nowTheme.SpineKanban.conf.fallback, spinePagetype);
+    };
 };
 
 
@@ -4966,6 +5575,8 @@ function insKanbanHTML() {
                 return;
             };
             let boxy = kanbanSpineStyle();
+    /* 建实例之前先定缓存作用域：否则首次加载的资源不会进本地缓存 */
+    syncCacheScope();
             spineKanban = GTSpineKanban.attach({
                 json: tempSpine,
                 character: spineChar0,
@@ -5022,26 +5633,16 @@ function insKanbanHTML() {
         /* 拖拽：所有看板种类共用同一个组件（图片 / Spine / 以后新增的） */
         KanbanSel = $(".Kanban#Main")[0];
         dragfunc(KanbanSel, {
-            /* 按下时判定：只有抓到角色，这次按下才允许拖拽 / 才算点击。
-               骨架画布在没画角色的地方是透明的，而主题的背景图是 CSS 画在 canvas
-               之下的 div 上 —— 所以「点到背景图」和「点到空白」在画布上是同一件事。
-               模块的命中测试把两者区分开；图片看板娘没有骨架，恒返回 true，
-               行为与以前完全一致。
-               只在按下瞬间判定一次：从角色身上起手的拖拽即使移到空白处也继续。 */
             onHit: function (clientX, clientY) {
                 return !spineKanban || spineKanban.hitTest(clientX, clientY);
             },
             onClick: function () {
-                /* 与 4.0.1 一致：语音走 charVoice，动画名取自主题的 anim.click
-                   （通常是 000000_xxx 这种完整名，而不是字面量 click）。 */
                 charVoice("click");
                 playAnimation([KanbanAssest.anim.click, "idle"]);
             },
             onDragStart: function () {
                 playAnimation(["run"]);
             },
-            /* 宿主决定要不要记住位置；组件只负责上报，
-               所以换看板种类时这条策略完全不用动。 */
             onDragEnd: function (rt, bo) {
                 IMGPos.X = rt; IMGPos.Y = bo;
                 localStorage.setItem("IMGPos", JSON.stringify(IMGPos));
@@ -5129,6 +5730,14 @@ function insTPMSettingHTML() {
             <p>${SelLang.menu.MobileLayout}<label style="float: right;margin-bottom: 0px;"><input class="tpmSetting btn-switch large" id="MobileLayout" type="checkbox" ${MGRConf.MobileLayout}></label></p><HR>
             <p>${SelLang.menu.IconSize}(px)<label style="float: right;margin-bottom: 0px;"><input class="tpmSetting btn-switch large input" id="IconSize" type="number" min="32" max="128" value="${MGRConf.IconSize}"></label></p><HR>
             <p>${SelLang.menu.KanbanSize}(%)<label style="float: right;margin-bottom: 0px;"><input class="tpmSetting btn-switch large input" id="KanbanSize" type="number" value="${MGRConf.KanbanSize}"></label></p><HR>
+            <p>${SelLang.msg.preloadTitle}<label style="float: right;margin-bottom: 0px;">
+            <input type="button" class="tpmSetting btn-switch large btns" id="KanbanPreload" value="${SelLang.msg.preload}">
+            <input type="button" class="tpmSetting btn-switch large btns" id="KanbanCacheClear" value="${SelLang.msg.cacheClear}">
+            <input type="button" class="tpmSetting btn-switch large btns" id="KanbanCacheClearAll" value="${SelLang.msg.cacheClearAll}">
+            </label></p>
+            <p class="tpmSetting" id="KanbanCacheInfo" style="font-size: 12px; opacity: 0.8;">${SelLang.msg.cacheLoading}</p>
+            <p class="tpmSetting" id="KanbanPreloadNote" style="font-size: 12px; opacity: 0.8; margin-top: -6px;">${SelLang.msg.preloadNote}</p><HR>
+
             <audio id="themeSoundPlay" class="tpmSetting" controls src="${nullimg}" type="audio/mp3" style='display:none'></audio>
         </div>
         <div class="settingCOMP settingBoxFooter" id="tpmSetting">　　　<a target="_blank" href="https://github.com/HazukiKaguya/GuguTown_ThemePack">Help/使用帮助</a>　|　Author/作者 Github@HazukiKaguya</div>
@@ -5459,7 +6068,7 @@ $(document)
     })
     .on('click', ".settingCOMP.appIcons#tpmSetting", function () {
         $('.settingBox#appBox').hide();
-        $('.settingBox#tpmSetting').show();
+        $('.settingBox#tpmSetting').show(); refreshCacheInfo();
     })
     .on('click', ".settingCOMP.appIcons#langSetting", function () {
         $('.settingBox#appBox').hide();
@@ -5474,6 +6083,16 @@ $(document)
             localStorage.setItem("LangConf_" + User, JSON.stringify(LAConf));
             window.location.reload();
         };
+    })
+    /* 资源预加载与本地缓存 */
+    .on('click', ".tpmSetting#KanbanPreload", function () {
+        preloadThemeAssets();
+    })
+    .on('click', ".tpmSetting#KanbanCacheClear", function () {
+        clearAssetCache(false);
+    })
+    .on('click', ".tpmSetting#KanbanCacheClearAll", function () {
+        clearAssetCache(true);
     })
     .on('change', ".tpmSetting#Themes", function (e) {
         if (e.target.value && e.target.value != MGRConf.ThemePack) {
