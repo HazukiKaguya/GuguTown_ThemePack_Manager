@@ -5,7 +5,7 @@
 // @name:ja     咕咕镇テーマパックマネージャー
 // @namespace   https://github.com/HazukiKaguya/GuguTown_ThemePack
 // @homepage    https://github.com/HazukiKaguya/GuguTown_ThemePack
-// @version     4.0.1
+// @version     4.0.2
 // @description WebGame GuguTown ThemePack Mannager.
 // @description:zh-CN 气人页游 咕咕镇 主题包管理器。
 // @description:zh-TW 氣人頁遊 咕咕鎮 主題包管理器。
@@ -16,8 +16,11 @@
 // @match       https://*.guguzhen.com/*
 // @match       https://*.momozhen.com/*
 // @run-at      document-end
-// @require     https://greasyfork.org/scripts/450822-spine-webgl/code/spine-webgl.js?version=1098282
+// @require     https://update.greasyfork.org/scripts/450822/1098282/spine-webgl.js
+// @require     https://update.greasyfork.org/scripts/598975/1953217/gt-spine-kanban.js
 // @license     MIT License
+// @downloadURL https://github.com/HazukiKaguya/GuguTown_ThemePack_Manager/raw/main/GuguTown_ThemePack_Manager.user.js
+// @updateURL   https://github.com/HazukiKaguya/GuguTown_ThemePack_Manager/raw/main/GuguTown_ThemePack_Manager.user.js
 // @grant       none
 // ==/UserScript==
 /* eslint-env jquery */
@@ -30,7 +33,7 @@ if (window.location.pathname.indexOf('php') == -1 && window.location.pathname !=
   插件基础资产
   Basic Assets
 */
-let PluginVersion = '4.0.1', timeCheck = new Date().getTime(), LAConf, User;
+let PluginVersion = '4.0.2', timeCheck = new Date().getTime(), LAConf, User;
 const nullimg = 'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==',
     defConf = {
         "ThemePack": "testmain001",
@@ -2462,32 +2465,120 @@ SelLang.items = items;
 SelLang.chars = chars;
 let err = SelLang.errors;
 /* All Kanban Pre init */
-let KanbanSel, KanbanBG, KanbanCommon, KanbanAssest, KanbanSkill, KanbanCharUri, CharStatus;
-/* Spine Kanban Pre init */
-let additionAnimations, optionList, idleCheck, spineCanvas, gl, shader, shapes, batcher, skeletonRenderer,
-    /* Spine 运行时状态：必须真实声明，否则严格模式下赋值会抛出 ReferenceError */
-    loadingSkeleton, currentSkeletonBuffer, animationState, forceNoLoop, currentTexture,
-    /* 0 = 未指定职介，由 resolveAnimType() 回退到主题包声明的 CharStatus.type。
-       3.x 曾用 24 表示「无职介」，但 24 会被当成合法职介而加载不存在的 24_*.cysp。 */
-    pagetype = 0,
-    currentClass = '1',
-    loading = false,
-    activeSkeleton = "",
-    generalBattleSkeletonData = {},
-    generalAdditionAnimations = {},
-    currentClassAnimData = {
-        type: 0,
-        data: {}
-    },
-    currentCharaAnimData = {
-        id: 0,
-        data: {}
-    },
-    useBig = screen.width * devicePixelRatio > 1280,
-    lastFrameTime = Date.now() / 1000,
-    speedFactor = 1,
-    animationQueue = [],
-    mvp = new spine.webgl.Matrix4();
+/* ==========================================================================
+   看板娘拖拽组件 Drag COMP —— 所有看板种类共用
+   --------------------------------------------------------------------------
+   放在本脚本而不是看板模块里，原因有两个：
+     1. 各看板种类（Spine / 图片 / 以后新增）都要用，属通用交互；
+     2. 「拖完要不要记录位置」是宿主策略（存 localStorage / 只存内存 / 不存），
+        不该塞进看板渲染模块的 API。
+   判定规则：按住 >= 0.2s 或移动 > 2px 算拖拽，否则算点击。
+   ========================================================================== */
+const KANBAN_DRAG_HOLD_MS = 200;
+function dragfunc(obj, hooks) {
+    hooks = hooks || {};
+    if (!obj) { return; };
+    /* onDragStart fires once per drag, so it must be re-armed on every press. Reading it a
+       single time when the component was attached (the earlier bug) left it nulled after the
+       first drag, so only that first drag ever played its animation. */
+    let rt = IMGPos.X, bo = IMGPos.Y, ww, wh, start = null;
+
+    obj.onmousedown = function (event) {
+        event = event || window.event;
+        /* Optional gate: the host decides whether this press may start a drag at all.
+           The Spine kanban uses it to require that the press landed on the character, so
+           dragging the empty part of the canvas does nothing. Checked once, on press: a
+           drag that starts on the character stays a drag even if the cursor leaves it. */
+        if (typeof hooks.onHit == "function" && !hooks.onHit(event.clientX, event.clientY)) { return; };
+        obj.setCapture && obj.setCapture();
+        /* re-arm the once-per-drag hook for THIS press */
+        let once = hooks.onDragStart;
+        let ol = event.clientX - obj.offsetLeft,
+            ot = event.clientY - obj.offsetTop,
+            cw = obj.clientWidth,
+            ch = obj.clientHeight,
+            downX = event.clientX,
+            downY = event.clientY,
+            moved = false;
+        ww = $(window).width();
+        wh = $(window).height();
+        start = { t: Date.now(), rt: rt, bo: bo, cx: event.clientX, cy: event.clientY };
+
+        document.onmousemove = function (event) {
+            event = event || window.event;
+            if (Math.abs(event.clientX - downX) > 2 || Math.abs(event.clientY - downY) > 2) {
+                moved = true;
+            };
+            rt = ww + ol - event.clientX - cw;
+            bo = wh + ot - event.clientY - ch;
+            if (ol - event.clientX > 0) { rt = ww - cw; };
+            if (ot - event.clientY > 0) { bo = wh - ch; };
+            if (rt < 200 - cw && rt < 0) { rt = 200 - cw; };
+            if (bo < 200 - ch && bo < 0) { bo = 200 - ch; };
+            obj.style.right = rt + "px";
+            obj.style.bottom = bo + "px";
+            if (moved && once) { let f = once; once = null; f(); };
+        };
+
+        document.onmouseup = function () {
+            document.onmousemove = null; document.onmouseup = null;
+            obj.releaseCapture && obj.releaseCapture();
+            let held = Date.now() - start.t;
+            if (moved || held >= KANBAN_DRAG_HOLD_MS) {
+                if (typeof hooks.onDragEnd == "function") { hooks.onDragEnd(rt, bo); };
+            }
+            else {
+                /* 位置未变化 => 视为点击。把按下点交给宿主：
+                   宿主可能要靠它判断「点中的是不是角色」（见 hitTest）。 */
+                if (typeof hooks.onClick == "function") { hooks.onClick(start.cx, start.cy); };
+            };
+            start = null;
+        };
+        return false;
+    };
+
+    obj.addEventListener('touchmove', function (event) {
+        event.preventDefault();
+        if (event.targetTouches.length != 1) { return; };
+        let touch = event.targetTouches[0];
+        ww = $(window).width();
+        wh = $(window).height();
+        if (touch.clientX >= 0) {
+            if (touch.clientX < ww - 300) { obj.style.right = (ww - touch.clientX - obj.clientWidth) + 'px'; }
+            else { obj.style.right = '0px'; };
+        } else { obj.style.right = (ww - obj.clientWidth) + 'px'; };
+        if (touch.clientY >= 0) {
+            if (touch.clientY < wh - 300) { obj.style.bottom = (wh - touch.clientY - obj.clientHeight) + 'px'; }
+            else { obj.style.bottom = '0px'; };
+        } else { obj.style.bottom = (wh - obj.clientHeight) + 'px'; };
+    }, { passive: false });
+};
+
+/* spine-webgl 运行时是否可用。看板模块本身通过 @require 引入，总是存在；
+   这里判断的是它依赖的 WebGL 运行时。原引擎在使用者顶层直接 new spine.webgl.Matrix4()，
+   @require 一失败，脚本求值阶段就抛 ReferenceError，连设置面板一起挂掉。 */
+function spineLibReady() {
+    return typeof spine != "undefined" && !!spine && !!spine.webgl;
+};
+/* 看板模块是否就绪（@require 失败时为 undefined，此时不启用 Spine 看板娘） */
+function spineModuleReady() {
+    return typeof GTSpineKanban != "undefined" && !!GTSpineKanban && typeof GTSpineKanban.attach == "function";
+};
+/* 由 insKanbanHTML() 在图/骨模式之间选择后绑定，供战斗与换人等钩子调用。 */
+let spineKanban = null;
+
+/* 看板娘 DOM，以及"当前这块看板娘"的资源/动画配置。
+   KanbanAssest / CharStatus 在两套看板娘里含义不同：
+     - Spine 模式：主题的 SpineKanban.assest / conf[角色]，但引擎真正用的是模块自己那份，
+                   这里的副本只供点击/胜负动作取 anim 常量与图片模式拼 URL。
+     - 图片模式：主题的 ImageKanban.asset / idle。
+   Spine 引擎的其余运行时状态（pagetype / loading / 动画缓存 …）
+   现在完全归 gt-spine-kanban 模块所有，通过 spineKanban 实例的方法读写，
+   这里不再保留副本（保留只会是永不生效的假状态）。 */
+let KanbanSel, KanbanBG, KanbanCommon, KanbanSkill, KanbanCharUri, KanbanAssest, CharStatus;
+/* 当前职介。引擎那份在模块里（spineKanban.getPagetype()），这份是给脚本自己在
+   绑定/重建实例之前暂存用的——模块还没建立时无从查询。 */
+let spinePagetype = 0;
 
 
 
@@ -2716,7 +2807,10 @@ function normTheme(theme) {
         t.SpineKanban = t.SpineKanban || {};
         t.SpineKanban.bg = t.SpineKanban.bg || {
             url: t.Style.kanbanbg || testmain001.SpineKanban.bg.url,
-            config: { alpha: true, backgroundColor: "#000000" }
+            config: {
+				alpha: t.SpineKanban.bg.config.alpha ?? true,
+				backgroundColor: t.SpineKanban.bg.config.backgroundColor || "#000000"
+			}
         };
         t.SpineKanban.assest = t.SpineKanban.assest || cloneJSON(testmain001.SpineKanban.assest);
         t.SpineKanban.conf = t.SpineKanban.conf || {};
@@ -3575,10 +3669,10 @@ function getNowEquip() {
     MGRConf.NowEquip = nowEquip;
     upLocal(false);
     /* 职介变化才重新加载骨架，避免重复请求 */
-    if (pagetype == cls) { return; };
-    pagetype = cls;
-    loading = false;
-    spineload(CharStatus.uri, pagetype, false);
+    if (spinePagetype == cls) { return; };
+    spinePagetype = cls;
+    /* 职介/角色变了让模块重新加载骨架 */
+    if (spineKanban) { spineKanban.load(nowTheme.SpineKanban.conf[nowCard] || nowTheme.SpineKanban.conf.fallback, spinePagetype); };
 };
 
 
@@ -3695,12 +3789,13 @@ function getNowCard() {
     nowCard = card;
     if (tempCard == nowCard) { return; };
     MGRConf.NowCard = nowCard;
-    /* 重置骨架加载状态，否则 loading 仍为 true 会导致 spineload 直接返回，
-       看板娘不会换人 —— 这正是「切换出战角色看板娘不切换」的成因。 */
-    loading = false;
-    activeSkeleton = "";
-    currentClassAnimData = { type: 0, data: {} };
-    currentCharaAnimData = { id: 0, data: {} };
+    /* 原来由引擎持有的加载状态（loading / activeSkeleton / 动画缓存）现在在模块实例里，
+       随实例销毁 —— 所以换人必须重建实例；否则 loading 仍为 true 会让加载链直接返回，
+       看板娘不换人。
+       职介要在销毁**之前**从旧实例读出来，之后再读就只剩 0 了。 */
+    let prevClass = (spineKanban && spineKanban.getAnimClass()) || pagetype || 0;
+    if (spineKanban) { spineKanban.destroy(); spineKanban = null; };
+    pagetype = prevClass;
     $(".Kanban.SpineTool#Shell").remove();
     $(".Kanban.Spine#Main").remove();
     $(".Kanban.Image#Main").remove();
@@ -3709,8 +3804,8 @@ function getNowCard() {
            注意：图片看板娘模式下 CharStatus 是 idle 图编号（字符串），
            此时不要碰 pagetype，否则 resolveAnimType 会读到垃圾值。 */
         if (!MGRConf.AIKanban) {
-            CharStatus = nowTheme.SpineKanban.conf[nowCard] || nowTheme.SpineKanban.conf.fallback;
-            pagetype = resolveAnimType(0);
+            /* 新角色的 conf 条目会在 insKanbanHTML() 重建实例时传入 */
+            pagetype = prevClass;
         };
     };
     insKanbanHTML();
@@ -4642,8 +4737,8 @@ button[onclick*='b_forcbs('] {
     align-items: center;
 }
 .Kanban.Image#Image {
-    width: ${nowTheme.ImageKanban.asset.resize}%;
-    height: ${nowTheme.ImageKanban.asset.resize}%;
+    width: ${imageKanbanResize()}%;
+    height: ${imageKanbanResize()}%;
     object-fit: contain;
     object-position: center bottom;
     display: block;
@@ -4667,8 +4762,8 @@ button[onclick*='b_forcbs('] {
     align-items: center;
 }
 .Kanban.Image#Image {
-    width: ${nowTheme.ImageKanban.asset.resize}%;
-    height: ${nowTheme.ImageKanban.asset.resize}%;
+    width: ${imageKanbanResize()}%;
+    height: ${imageKanbanResize()}%;
     object-fit: contain;
     object-position: center bottom;
     display: block;
@@ -4807,10 +4902,25 @@ function imageKanbanUrl(card) {
     if (!uri || fg == null) { return null; };
     return tC.asset.common + uri + fg + tC.asset.ext;
 };
+/* 图片看板娘的缩放百分比。主题未声明 ImageKanban 时必须可回退，
+   否则模板字符串在拼接样式阶段就会抛异常（与是否真的显示图片看板娘无关）。 */
+function imageKanbanResize() {
+    let a = nowTheme.ImageKanban && nowTheme.ImageKanban.asset;
+    let r = a && a.resize;
+    r = parseFloat(r);
+    return (isNaN(r) || r <= 0) ? 64 : r;
+};
+/* 看板娘尺寸：桌面 / 移动两套比例，与原来的 CSS 数值一致 */
+function kanbanSpineStyle() {
+    let boxy = (MGRConf.MobileLayout == "checked") ||
+        (MGRConf.MobileLayout == "" && /Android|Phone|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent));
+    let size = Math.floor(MGRConf.KanbanSize) || 100;
+    return boxy
+        ? { main: [4.85 * size, 4.05 * size], canvas: [4.8 * size, 4 * size] }
+        : { main: [3.65 * size, 3.05 * size], canvas: [3.6 * size, 3 * size] };
+};
 function insKanbanHTML() {
-    if ($(".Kanban.SpineTool#Shell").length > 0 ||
-        $(".Kanban.Spine#Main").length > 0 ||
-        $(".Kanban.Image#Main").length > 0) {
+    if ($(".Kanban#Main").length > 0) {
         return;
     };
     if (MGRConf.Kanban) {
@@ -4821,26 +4931,67 @@ function insKanbanHTML() {
             KanbanAssest = tempSpine.assest;
             KanbanCommon = KanbanAssest.common;
             KanbanSkill = KanbanAssest.skill;
-            additionAnimations = KanbanAssest.addAnimations;
-            optionList = KanbanAssest.optionList;
-            idleCheck = KanbanAssest.idleCheck;
-            CharStatus = tempSpine.conf[nowCard];
-            KanbanCharUri = CharStatus.uri;
-            KanbanHTML = $(`<style>${KanbanCss}
-            .Kanban.Spine#Main:hover{
-                background:url(${KanbanBG});
-                background-size:cover;
-            }</style>
-            <div class="Kanban SpineTool" id="Shell" style ="display:none;">
-                <span> 动画:</span>
-                <select class="Kanban SpineTool" id="animationList"></select>
-                <input class="Kanban SpineTool" id="setAnimation" type="button" value="播放">
-            </div>
-            <div class="Kanban Spine" id="Main" style = "position:fixed;right:${IMGPos.X}px;bottom:${IMGPos.Y}px;z-index:88;cursor:pointer;" >
-                <canvas class="Kanban Spine" id="Canvas" ></canvas>
-            </div>`);
-            KanbanHTML.insertBefore('body');
-            initSpine(true);
+            /* 未单独配置的角色用 conf.fallback 兜底
+               （原来直接取 conf[nowCard]，该角色没配置时 undefined.uri 会抛异常） */
+            let spineChar0 = tempSpine.conf[nowCard] || tempSpine.conf.fallback;
+            KanbanCharUri = spineChar0.uri;
+            /* 结构、画布、工具条、拖拽、点击判定全部由模块负责。本脚本只给主题 JSON，
+               并回答「播哪个动画」「点了说什么话」「拖到哪了」。 */
+            /* @require 失败时模块不存在：退回图片看板娘（若有），不要抛异常。
+               这一步放在尺寸计算之前 —— 没有模块就完全不需要碰 navigator 等宿主对象。 */
+            if (!spineModuleReady()) {
+                console.log('Spine kanban module unavailable (@require failed).');
+                if (nowTheme.INF.COMP.ImageKanban) {
+                    MGRConf.AIKanban = "checked";
+                    upLocal(false);
+                    insKanbanHTML();
+                };
+                return;
+            };
+            /* spine-webgl 没就绪时不要进模块 —— 模块只会回报 no-spine-library，
+               而这里退回图片看板娘更符合预期（原引擎就是被这个判断挡住的）。 */
+            if (!spineLibReady()) {
+                /* 明确说出原因：Safari 的「跟踪预防」等会拦掉 @require 的资源，
+                   这时 spine 根本不存在，跟主题包无关。 */
+                console.warn('ThemePack: spine-webgl 未加载（@require 失败或被浏览器拦截），' +
+                    '改用图片看板娘。若主题只有 SpineKanban，请检查 @require 是否被拦。');
+                if (nowTheme.INF.COMP.ImageKanban) {
+                    MGRConf.AIKanban = "checked";
+                    upLocal(false);
+                    if ($(".tpmSetting#AIKanban").length > 0) {
+                        $(".tpmSetting#AIKanban")[0].checked = "checked";
+                    };
+                    insKanbanHTML();
+                };
+                return;
+            };
+            let boxy = kanbanSpineStyle();
+            spineKanban = GTSpineKanban.attach({
+                json: tempSpine,
+                character: spineChar0,
+                animClass: spinePagetype,
+                /* 本脚本自己持有 spine 运行时（@require），显式交给模块：
+                   某些用户脚本沙箱不会把 @require 的库挂到页面 window 上，
+                   模块自己去探测会探测不到，然后误以为缺库去 CDN 找。 */
+                spine: (typeof spine != "undefined") ? spine : null,
+                loadsync: true,
+                pos: { X: IMGPos.X, Y: IMGPos.Y },
+                canvas: { width: boxy.canvas[0], height: boxy.canvas[1] },
+                style: { cls: 'Spine', width: boxy.main[0], height: boxy.main[1], hoverBg: KanbanBG },
+                onClick: function () { charVoice("click"); },
+                onError: function (code) {
+                    console.log('Spine kanban unavailable: ' + code);
+                    if (nowTheme.INF.COMP.ImageKanban) {
+                        MGRConf.AIKanban = "checked";
+                        upLocal(false);
+                        if ($(".tpmSetting#AIKanban").length > 0) {
+                            $(".tpmSetting#AIKanban")[0].checked = "checked";
+                        };
+                        insKanbanHTML();
+                    };
+                }
+            });
+            console.log("spine mode (module)");
 
         }
         else if ((!nowTheme.INF.COMP.SpineKanban || MGRConf.AIKanban) && nowTheme.INF.COMP.ImageKanban) {
@@ -4868,8 +5019,35 @@ function insKanbanHTML() {
             </div>`).insertBefore('body');
             console.log("image mode" + (lfgIdle ? " (idle)" : ""));
         };
+        /* 拖拽：所有看板种类共用同一个组件（图片 / Spine / 以后新增的） */
         KanbanSel = $(".Kanban#Main")[0];
-        dragfunc(KanbanSel);
+        dragfunc(KanbanSel, {
+            /* 按下时判定：只有抓到角色，这次按下才允许拖拽 / 才算点击。
+               骨架画布在没画角色的地方是透明的，而主题的背景图是 CSS 画在 canvas
+               之下的 div 上 —— 所以「点到背景图」和「点到空白」在画布上是同一件事。
+               模块的命中测试把两者区分开；图片看板娘没有骨架，恒返回 true，
+               行为与以前完全一致。
+               只在按下瞬间判定一次：从角色身上起手的拖拽即使移到空白处也继续。 */
+            onHit: function (clientX, clientY) {
+                return !spineKanban || spineKanban.hitTest(clientX, clientY);
+            },
+            onClick: function () {
+                /* 与 4.0.1 一致：语音走 charVoice，动画名取自主题的 anim.click
+                   （通常是 000000_xxx 这种完整名，而不是字面量 click）。 */
+                charVoice("click");
+                playAnimation([KanbanAssest.anim.click, "idle"]);
+            },
+            onDragStart: function () {
+                playAnimation(["run"]);
+            },
+            /* 宿主决定要不要记住位置；组件只负责上报，
+               所以换看板种类时这条策略完全不用动。 */
+            onDragEnd: function (rt, bo) {
+                IMGPos.X = rt; IMGPos.Y = bo;
+                localStorage.setItem("IMGPos", JSON.stringify(IMGPos));
+                playAnimation(["idle"]);
+            }
+        });
     };
 };
 
@@ -5208,513 +5386,19 @@ window.onresize = function settingBoxPos() {
 };
 
 
-/*
-    看板元素拖动组件
-    Drag COMP
-*/
-let ww, wh;
-function dragfunc(obj) {
-    let rt = IMGPos.X, bo = IMGPos.Y, dragrun = false, l = 0, t = 0;
-    obj.onmousedown = function (event) {
-        obj.setCapture && obj.setCapture();
-        event = event || window.event;
-        let ol = event.clientX - obj.offsetLeft,
-            ot = event.clientY - obj.offsetTop,
-            cw = obj.clientWidth,
-            ch = obj.clientHeight;
-        ww = $(window).width();
-        wh = $(window).height();
-        /* 记录按下时的坐标：用于区分「点击」与「拖动」 */
-        let downRt = rt, downBo = bo;
-        document.onmousemove = function (event) {
-            event = event || window.event;
-            rt = ww + ol - event.clientX - cw;
-            bo = wh + ot - event.clientY - ch;
-            if (ol - event.clientX > 0) {
-                rt = ww - cw;
-            };
-            if (ot - event.clientY > 0) {
-                bo = wh - ch;
-            };
-            if (rt < 200 - cw && rt < 0) {
-                rt = 200 - cw;
-            };
-            if (bo < 200 - ch && bo < 0) {
-                bo = 200 - ch;
-            };
-            obj.style.right = rt + "px";
-            obj.style.bottom = bo + "px";
-            if (!dragrun) {
-                playAnimation(['run']);
-                dragrun = true;
-            };
-        };
-        document.onmouseup = function () {
-            dragrun = false;
-            document.onmousemove = null; document.onmouseup = null;
-            obj.releaseCapture && obj.releaseCapture();
-            if (rt == downRt && bo == downBo) {
-                /* 位置未变化 => 视为点击 */
-                charVoice("click");
-                playAnimation([KanbanAssest.anim.click, 'idle']);
-            }
-            else {
-                IMGPos.X = rt;
-                IMGPos.Y = bo;
-                localStorage.setItem("IMGPos", JSON.stringify(IMGPos));
-                playAnimation(['idle']);
-            };
-        };
-        return false;
-    };
-    obj.addEventListener('touchmove', function (event) {
-        event.preventDefault();
-        if (event.targetTouches.length == 1) {
-            let touch = event.targetTouches[0];
-            ww = $(window).width();
-            wh = $(window).height();
-            if (touch.clientX >= 0) {
-                if (touch.clientX < ww - 300) { obj.style.right = (ww - touch.clientX - obj.clientWidth) + 'px'; l = touch.clientX / ww }
-                else { obj.style.right = '0px'; l = 0.8 }
-            } else if (touch.clientX < 0) { obj.style.right = (ww - obj.clientWidth) + 'px'; l = 0 };
-            if (touch.clientY >= 0) {
-                if (touch.clientY < wh - 300) { obj.style.bottom = (wh - touch.clientY - obj.clientHeight) + 'px'; t = touch.clientY / wh }
-                else { obj.style.bottom = '0px'; t = 0.68 }
-            } else if (touch.clientY < 0) { obj.style.bottom = (wh - obj.clientHeight) + 'px'; t = 0 };
-        };
-    }, { passive: false });
-    return false;
-};
-
+/* 看板拖拽组件已移入 gt-spine-kanban 模块（含 0.2s 点击/拖拽判定） */
 
 /*
     Spine
 */
-/* 所需前置functions */
-function _(e, t, n) {
-    let r = null;
-    if ("text" === e) { return document.createTextNode(t); };
-    r = document.createElement(e);
-    for (let l in t) {
-        if ("style" === l) { for (let a in t.style) r.style[a] = t.style[a]; }
-        else if ("className" === l) { r.className = t[l]; }
-        else if ("event" === l) { for (let a in t[l]) r.addEventListener(a, t[l][a]); }
-        else { r.setAttribute(l, t[l]); };
-    };
-    if (n) for (let s = 0; s < n.length; s++)null != n[s] && r.appendChild(n[s]);
-    return r;
-};
-function getClass(i) {
-    return (i < 10 ? '0' : '') + i;
-};
-function loadData(url, cb, loadType, progress) {
-    let xhr = new XMLHttpRequest; xhr.open('GET', url, true);
-    if (loadType) xhr.responseType = loadType; if (progress) xhr.onprogress = progress;
-    xhr.onload = function () { if (xhr.status == 200) { cb(true, xhr.response); } else { cb(false); }; };
-    xhr.onerror = function () { cb(false); }; xhr.send();
-};
-function sliceAnimation(buf) {
-    let view = new DataView(buf), count = view.getInt32(12, true);
-    return {
-        count: count,
-        data: buf.slice((count + 1) * 32)
-    };
-};
-
-/* 正式init */
-/* 看板娘职介动画类型解析 Anim Class Type Resolve
-   4.x 的 getNowEquip() 不再从 DOM 反推当前装备（依赖游戏页面结构，易随游戏版本失效），
-   职介改以主题包自己声明的类别为准：SpineKanban.conf[角色].type。
-   pagetype 仍是显式覆盖项，供后续补齐的 getNowEquip() 使用。 */
-function resolveAnimType(type) {
-    let t = parseInt(type);
-    if (!isNaN(t) && t > 0) { return t; };
-    /* 仅当 CharStatus 是 Spine 角色配置对象时才取 type；
-       图片看板娘模式下它是 idle 图编号字符串，不可当作职介读取。 */
-    if (CharStatus && typeof CharStatus == "object" && CharStatus.type !== undefined) {
-        t = parseInt(CharStatus.type);
-        if (!isNaN(t) && t > 0) { return t; };
-    };
-    return parseInt(KanbanAssest.baseId) || 1;
-};
-
-function initSpine(status) {
-    if (!status) {
-        return;
-    };
-    console.log("spine mode init.");
-    window.skeleton = {};
-    let tempSpine = nowTheme.SpineKanban, config;
-    spineCanvas = $(".Kanban.Spine#Canvas")[0];
-    config = tempSpine.bg.config;
-    gl = spineCanvas.getContext("webgl", config) || spineCanvas.getContext("experimental-webgl", config);
-    if (!gl) {
-        alert(err.code + 'K_SP_001' + err.info + err.K.SP._001);
-        MGRConf.AIKanban = "checked";
-        upLocal(false);
-        if ($(".tpmSetting#AIKanban").length > 0) {
-            $(".tpmSetting#AIKanban")[0].checked = "checked";
-        };
-        alert('Spine Kanban Musume has been disabled.');
-        return;
-    };
-    shader = spine.webgl.Shader.newTwoColoredTextured(gl);
-    batcher = new spine.webgl.PolygonBatcher(gl);
-    mvp.ortho2d(0, 0, 512 - 1, 512 - 1);
-    skeletonRenderer = new spine.webgl.SkeletonRenderer(gl);
-    shapes = new spine.webgl.ShapeRenderer(gl);
-    pagetype = resolveAnimType(pagetype);
-    spineload(CharStatus.uri, pagetype, status);
-};
-
-function spineload(uri, type, status) {
-    if (loading) {
-        return;
-    };
-    loading = true;
-    /* 先确定角色：职介类型可能来自 CharStatus.type，必须在解析前落定 */
-    if (!uri) {
-        CharStatus = nowTheme.SpineKanban.conf.fallback;
-        uri = CharStatus.uri;
-    };
-    type = resolveAnimType(type);
-    if (activeSkeleton == uri && currentClass == type && !status) {
-        return;
-    };
-    currentClass = type;
-    let baseUnitId = uri;
-    loadingSkeleton = {
-        id: uri,
-        info: CharStatus,
-        baseId: KanbanAssest.baseId
-    };
-    if (loadingSkeleton.info.hasSpecialBase) {
-        loadingSkeleton.baseId = baseUnitId;
-        currentClass = baseUnitId;
-    };
-    let baseId = loadingSkeleton.baseId;
-    if (!generalBattleSkeletonData[baseId]) {
-        console.log('Load Common Skel (1/6)');
-        loadData(KanbanAssest.common + baseId + KanbanAssest.skeleton, function (success, data) {
-            if (!success || data === null) {
-                return;
-            };
-            loading = true;
-            generalBattleSkeletonData[baseId] = data;
-            loadAdditionAnimation();
-        }, 'arraybuffer');
-    }
-    else {
-        loadAdditionAnimation();
-    };
-};
-
-function loadAdditionAnimation() {
-    let doneCount = 0, abort = false, baseId = loadingSkeleton.baseId;
-    generalAdditionAnimations[baseId] = generalAdditionAnimations[baseId] || {};
-    additionAnimations.forEach(function (i) {
-        if (generalAdditionAnimations[baseId][i]) {
-            return doneCount++;
-        };
-        loadData(KanbanAssest.common + baseId + '_' + i + KanbanAssest.ext, function (success, data) {
-            if (!success || data == null) {
-                console.log('Failed to load Common Skel.');
-                loading = false;
-                abort = true;
-                return abort;
-            };
-            if (abort) {
-                return;
-            };
-            generalAdditionAnimations[baseId][i] = sliceAnimation(data);
-            if (++doneCount == additionAnimations.length) {
-                return loadClassAnimation();
-            };
-            console.log('Load Extra Anim (2/6) [' + (doneCount + 1) + '/6]');
-        }, 'arraybuffer');
-    });
-    if (doneCount == additionAnimations.length) {
-        return loadClassAnimation();
-    };
-    console.log('Load Extra Anim (2/6) [' + (doneCount + 1) + '/6]');
-};
-function loadClassAnimation() {
-    if (currentClassAnimData.type == currentClass) { loadCharaSkillAnimation(); }
-    else {
-        console.log('Load Type Anim (3/6)');
-        loadData(KanbanAssest.common + getClass(currentClass) + KanbanAssest.type, function (success, data) {
-            if (!success || data === null) {
-                console.log('Failed to load Type Anim.');
-                loading = false;
-                return loading;
-            };
-            currentClassAnimData = {
-                type: currentClass,
-                data: sliceAnimation(data)
-            };
-            loadCharaSkillAnimation();
-        }, 'arraybuffer');
-    };
-};
-function loadCharaSkillAnimation() {
-    let baseUnitId = loadingSkeleton.id;
-    if (currentCharaAnimData.id == baseUnitId) {
-        loadTexture();
-    }
-    else {
-        console.log('Load Skill Anim (4/6)');
-        loadData(KanbanAssest.unit + baseUnitId + KanbanAssest.skill, function (success, data) {
-            if (!success || data === null) {
-                console.log('Failed to load Skill Anim.');
-                loading = false;
-                return loading;
-            };
-            currentCharaAnimData = {
-                id: baseUnitId,
-                data: sliceAnimation(data)
-            };
-            loadTexture();
-        }, 'arraybuffer');
-    }
-};
-function loadTexture() {
-    console.log('Load Texture Pos (5/6)');
-    loadData(KanbanAssest.unit + loadingSkeleton.id + KanbanAssest.texture.pos, function (success, atlasText) {
-        if (!success) {
-            console.log('Failed to load Texture Pos.');
-            loading = false;
-            return loading;
-        }
-        else {
-            console.log('Load Texture Image (6/6)');
-        };
-        loadData(KanbanAssest.unit + loadingSkeleton.id + KanbanAssest.texture.img, function (success, blob) {
-            if (!success) {
-                console.log('Failed to load Texture Image.');
-                loading = false;
-                return loading;
-            };
-            let img = new Image();
-            img.onload = function () {
-                let created = !!window.skeleton.skeleton;
-                if (created) {
-                    window.skeleton.state.clearTracks();
-                    window.skeleton.state.clearListeners();
-                    gl.deleteTexture(currentTexture.texture);
-                };
-                let imgTexture = new spine.webgl.GLTexture(gl, img);
-                URL.revokeObjectURL(img.src);
-                let atlas = new spine.TextureAtlas(atlasText, function (path) {
-                    return imgTexture;
-                });
-                currentTexture = imgTexture;
-                let atlasLoader = new spine.AtlasAttachmentLoader(atlas);
-                let baseId = loadingSkeleton.baseId,
-                    additionAnimations = Object.values(generalAdditionAnimations[baseId]),
-                    animationCount = 0,
-                    classAnimCount = currentClassAnimData.data.count;
-                animationCount += classAnimCount;
-                let unitAnimCount = currentCharaAnimData.data.count;
-                animationCount += unitAnimCount;
-                additionAnimations.forEach(function (i) {
-                    animationCount += i.count;
-                });
-                let newBuffSize = generalBattleSkeletonData[baseId].byteLength - 64 + 1 + currentClassAnimData.data.data.byteLength + currentCharaAnimData.data.data.byteLength;
-                additionAnimations.forEach(function (i) {
-                    newBuffSize += i.data.byteLength;
-                });
-                let newBuff = new Uint8Array(newBuffSize), offset = 0;
-                newBuff.set(new Uint8Array(generalBattleSkeletonData[baseId].slice(64)), 0);
-                offset += generalBattleSkeletonData[baseId].byteLength - 64;
-                newBuff[offset] = animationCount; offset++;
-                newBuff.set(new Uint8Array(currentClassAnimData.data.data), offset);
-                offset += currentClassAnimData.data.data.byteLength;
-                newBuff.set(new Uint8Array(currentCharaAnimData.data.data), offset);
-                offset += currentCharaAnimData.data.data.byteLength;
-                additionAnimations.forEach(function (i) {
-                    newBuff.set(new Uint8Array(i.data), offset);
-                    offset += i.data.byteLength;
-                })
-                let skeletonBinary = new spine.SkeletonBinary(atlasLoader),
-                    skeletonData = skeletonBinary.readSkeletonData(newBuff.buffer),
-                    skeleton = new spine.Skeleton(skeletonData);
-                skeleton.setSkinByName(KanbanAssest.default);
-                let bounds = calculateBounds(skeleton);
-                let animationStateData = new spine.AnimationStateData(skeleton.data);
-                animationState = new spine.AnimationState(animationStateData);
-                animationState.setAnimation(0, getClass(currentClass) + KanbanAssest.anim._idle, true);
-                animationState.addListener({
-                    complete: function tick(track) {
-                        if (animationQueue.length) {
-                            let nextAnim = animationQueue.shift();
-                            if (nextAnim == KanbanAssest.anim.stop) {
-                                return;
-                            };
-                            if (nextAnim == KanbanAssest.anim.hold) {
-                                return setTimeout(tick, 1e3);
-                            };
-                            if (nextAnim.substr(0, 1) != KanbanAssest.substr) {
-                                nextAnim = getClass(currentClass) + KanbanAssest.sep + nextAnim;
-                            };
-                            console.log(nextAnim);
-                            animationState.setAnimation(0, nextAnim, !animationQueue.length);
-                        }
-                    },
-                });
-                window.skeleton = {
-                    skeleton: skeleton,
-                    state: animationState,
-                    bounds: bounds,
-                    premultipliedAlpha: true
-                };
-                loading = false;
-                (window.updateUI || setupUI)();
-                if (!created) {
-                    spineCanvas.style.width = '99%';
-                    requestAnimationFrame(render);
-                    setTimeout(function () {
-                        spineCanvas.style.width = '';
-                    }, 0);
-                };
-                activeSkeleton = loadingSkeleton.id;
-                currentSkeletonBuffer = newBuff.buffer;
-            }
-            img.src = URL.createObjectURL(blob);
-        }, 'blob', function (e) {
-            let perc = e.loaded / e.total * 40 + 60;
-        });
-    })
-};
+/* 原内联 Spine 引擎已移至本文件上方的模块 */
+/* 主题包要求播放某个动画 —— 唯一需要本脚本转达给看板模块的事情。
+   引擎在模块里，所以这里只做转发；图片看板娘模式下没有骨架，直接忽略。
+   调用方（点击 / 拖拽 / 战斗胜负）仍然只认 playAnimation 这个名字。 */
 function playAnimation(animation) {
-    if (nowTheme.INF.COMP.SpineKanban && !MGRConf.AIKanban) {
-        animationState = skeleton.state;
-        forceNoLoop = false;
-        /* 拷一份：下面会 push，不能污染调用方传入的数组
-           （例如 KanbanAssest.anim.lose 是全局常量，被污染后会逐场膨胀）。 */
-        animationQueue = animation.slice();
-        if (animationQueue[0] == KanbanAssest.anim.multi_standBy) {
-            animationQueue.push(KanbanAssest.idleCheck[0]);
-        }
-        else if (idleCheck.indexOf(animationQueue[0]) == -1) {
-            animationQueue.push('idle');
-        };
-        console.log(animationQueue);
-        let nextAnim = animationQueue.shift();
-        if (!/^\d{6}/.test(nextAnim)) nextAnim = getClass(currentClassAnimData.type) + '_' + nextAnim;
-        console.log(nextAnim);
-        animationState.setAnimation(0, nextAnim, !animationQueue.length && !forceNoLoop);
-    };
+    if (!spineKanban || typeof spineKanban.playAnime != "function") { return; };
+    spineKanban.playAnime(Array.isArray(animation) ? animation.slice() : [animation]);
 };
-function calculateBounds(skeleton) {
-    skeleton.setToSetupPose(); skeleton.updateWorldTransform();
-    let offset = new spine.Vector2(), size = new spine.Vector2();
-    skeleton.getBounds(offset, size, []); offset.y = 0; return { offset: offset, size: size };
-};
-function setupUI() {
-    let setupAnimationUI = function () {
-        let animationList = $("#animationList");
-        animationList.empty();
-        let skeleton = window.skeleton.skeleton,
-            state = window.skeleton.state,
-            activeAnimation = state.tracks[0].animation.name;
-        optionList.forEach(function (i) {
-            animationList[0].appendChild(_('option', { value: i[1] }, [_('text', i[0])]));
-        });
-        animationList[0].appendChild(_('option', { disabled: '' }, [_('text', '---')]));
-        skeleton.data.animations.forEach(function (i) {
-            i = i.name;
-            if (!/^\d{6}_/.test(i)) {
-                return;
-            };
-            let val = i;
-            if (!/skill/.test(i)) {
-                val = i + ',' + KanbanAssest.anim.stop
-            };
-            animationList[0].appendChild(_('option', {
-                value: val
-            }, [
-                _('text', i.replace(/\d{6}_skill(.+)/, 'Skill$1').replace(/\d{6}_joyResult/, 'CharSpecial'))]));
-        })
-    }
-    window.updateUI = function () {
-        setupAnimationUI();
-    };
-    setupAnimationUI();
-};
-function render() {
-    /* 状态未就绪时跳过本帧，但要继续排下一帧，避免循环被彻底打断 */
-    let sk = window.skeleton;
-    if (!sk || !sk.state || !sk.skeleton || !sk.bounds || !gl) {
-        requestAnimationFrame(render);
-        return;
-    };
-    let now = Date.now() / 1000,
-        delta = now - lastFrameTime;
-    lastFrameTime = now;
-    delta *= speedFactor;
-    if (resize() === false) {
-        requestAnimationFrame(render);
-        return;
-    };
-    gl.clearColor(0, 0, 0, 0);
-    gl.clear(gl.COLOR_BUFFER_BIT);
-    let state = window.skeleton.state,
-        skeleton = window.skeleton.skeleton,
-        bounds = window.skeleton.bounds,
-        premultipliedAlpha = window.skeleton.premultipliedAlpha;
-    state.update(delta);
-    state.apply(skeleton);
-    skeleton.updateWorldTransform();
-    shader.bind();
-    shader.setUniformi(spine.webgl.Shader.SAMPLER, 0);
-    shader.setUniform4x4f(spine.webgl.Shader.MVP_MATRIX, mvp.values);
-    batcher.begin(shader);
-    skeletonRenderer.premultipliedAlpha = premultipliedAlpha;
-    skeletonRenderer.draw(batcher, skeleton);
-    batcher.end();
-    shader.unbind();
-    requestAnimationFrame(render);
-};
-function resize() {
-    /* 骨架/包围盒可能尚未就绪（window.skeleton 在加载开始时是空对象 {}，
-       纹理 onload 又会先触发一次 render），此处必须判空，
-       否则 bounds.offset 抛 TypeError 会中断 render 的 requestAnimationFrame
-       循环，看板小人不再刷新、点击语音等后续逻辑也跟着失效。 */
-    let sk = window.skeleton;
-    let bounds = sk && sk.bounds;
-    if (!bounds || !bounds.offset || !bounds.size) { return false; };
-    if (!spineCanvas || !spineCanvas.clientWidth) { return false; };
-    let w = spineCanvas.clientWidth * devicePixelRatio,
-        h = spineCanvas.clientHeight * devicePixelRatio;
-    if (spineCanvas.width != w || spineCanvas.height != h) {
-        spineCanvas.width = w;
-        spineCanvas.height = h;
-    };
-    /* magic */
-    let centerX = bounds.offset.x + bounds.size.x / 2,
-        centerY = bounds.offset.y + bounds.size.y / 2,
-        scaleX = bounds.size.x / spineCanvas.width,
-        scaleY = bounds.size.y / spineCanvas.height,
-        scale = Math.max(scaleX, scaleY) * 1.2;
-    if (navigator.userAgent.indexOf('Android') > -1 || navigator.userAgent.indexOf('Phone') > -1) {
-        if (scale < 1) {
-            scale = 1;
-        };
-        let width = 512 * scale, height = 512 * scale;
-        mvp.ortho2d(CharStatus.wi, CharStatus.hi * 2, width, height);
-        gl.viewport(0, 0, 512 * CharStatus.re * 2, 512 * CharStatus.re * 2);
-    }
-    else {
-        if (scale < 1) {
-            scale = 1;
-        };
-        let width = 256 * scale, height = 256 * scale;
-        mvp.ortho2d(CharStatus.wi, CharStatus.hi, width, height);
-        gl.viewport(0, 0, 512 * CharStatus.re, 512 * CharStatus.re);
-    };
-};
-
-
 
 /*
     钩子
