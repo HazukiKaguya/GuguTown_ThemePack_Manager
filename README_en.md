@@ -20,9 +20,13 @@ If you like this plugin, you can click the below Vultr links and use it.
 ## Changelogs
 4.0.3 Fixed incorrect asset paths in Ming's test theme; added theme package preloading;   
 4.0.2 Decoupled Spine dashboard methods to use an external JS API, preparing for more dashboard types. Preparatory update; no behavioral change;   
-4.0.1 add equipment,char;   
+4.0.1 Adapted to Gugu Town update (added equipment and char replacement);   
 4.0.0 refactored setting panel, fix some bugs;   
-3.9.9 All modules have been refactored, the menu CSS and some copywriting have been fine-tuned, props replacement has been added, and the bug that sync-account will not be automatically re-login after the token expiration has been fixed;   
+3.10.2 Adapted to Gugu Town update (added equipment replacement);   
+3.10.1 fix a bug;  
+3.10.0 Adapted to Gugu Town update (added equipment and item replacement);   
+3.9.42 Adapted to Gugu Town update (added monster replacement); fixed some issues;   
+3.9.9 Refactored all modules; tweaked menu CSS and copy; added prop replacement; fixed sync-account auto re-login failure after token expiry;   
 3.8.0 all modules Refactoring is complete except userTheme module;   
 3.7.2 fix a bug;   
 3.7.0 Add equipment: Devil Devourer Ring, code refactoring;   
