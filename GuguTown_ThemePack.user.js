@@ -33,7 +33,7 @@ if (window.location.pathname.indexOf('php') == -1 && window.location.pathname !=
   插件基础资产
   Basic Assets
 */
-let PluginVersion = '4.0.3-dev1', timeCheck = new Date().getTime(), LAConf, User;
+let PluginVersion = '4.0.3', timeCheck = new Date().getTime(), LAConf, User;
 const nullimg = 'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==',
     defConf = {
         "ThemePack": "testmain001",
